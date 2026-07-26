@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Silly Prices — the board</title>
+</head>
+<body>
+<style>
+  :root{
+    --bg:#e9edf1; --surface:#f7f9fb; --card:#ffffff; --ink:#111820; --muted:#5b6a79; --faint:#8595a4;
+    --line:#d8e0e8; --line-strong:#c3ccd6; --accent:#0e7490; --accent-soft:#0e748015;
+    --buy:#0f7a4f; --buy-bg:#d7efe2; --buy-bar:#1f9c66;
+    --close:#137a6b; --close-bg:#d3ede7; --close-bar:#2f9e8b;
+    --watch:#a06a12; --watch-bg:#f6e8c9; --watch-bar:#d79a2b;
+    --rich:#5f6f7e; --rich-bg:#e5eaef; --rich-bar:#8b9aa8;
+    --avoid:#a83f2a; --avoid-bg:#f2ddd6; --noval:#6f7d8c; --noval-bg:#e7ecf1;
+    --serif:"Iowan Old Style","Palatino Linotype","Book Antiqua",Palatino,Georgia,serif;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,"SF Mono","Cascadia Mono",Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme:dark){:root{
+    --bg:#0b1015; --surface:#121b23; --card:#16212b; --ink:#e8eef4; --muted:#93a3b3; --faint:#6c7d8d;
+    --line:#243139; --line-strong:#30414c; --accent:#28b6d4; --accent-soft:#28b6d41f;
+    --buy:#3ecb8c; --buy-bg:#123227; --buy-bar:#31b579; --close:#3dc3ac; --close-bg:#123029; --close-bar:#33b39c;
+    --watch:#e6b44b; --watch-bg:#332a15; --watch-bar:#e0a63a; --rich:#8fa0b0; --rich-bg:#1e2932; --rich-bar:#5f7284;
+    --avoid:#ef7f64; --avoid-bg:#331d18; --noval:#8090a0; --noval-bg:#1c262f;
+  }}
+  :root[data-theme="light"]{
+    --bg:#e9edf1; --surface:#f7f9fb; --card:#ffffff; --ink:#111820; --muted:#5b6a79; --faint:#8595a4;
+    --line:#d8e0e8; --line-strong:#c3ccd6; --accent:#0e7490; --accent-soft:#0e748015;
+    --buy:#0f7a4f; --buy-bg:#d7efe2; --buy-bar:#1f9c66; --close:#137a6b; --close-bg:#d3ede7; --close-bar:#2f9e8b;
+    --watch:#a06a12; --watch-bg:#f6e8c9; --watch-bar:#d79a2b; --rich:#5f6f7e; --rich-bg:#e5eaef; --rich-bar:#8b9aa8;
+    --avoid:#a83f2a; --avoid-bg:#f2ddd6; --noval:#6f7d8c; --noval-bg:#e7ecf1;
+  }
+  :root[data-theme="dark"]{
+    --bg:#0b1015; --surface:#121b23; --card:#16212b; --ink:#e8eef4; --muted:#93a3b3; --faint:#6c7d8d;
+    --line:#243139; --line-strong:#30414c; --accent:#28b6d4; --accent-soft:#28b6d41f;
+    --buy:#3ecb8c; --buy-bg:#123227; --buy-bar:#31b579; --close:#3dc3ac; --close-bg:#123029; --close-bar:#33b39c;
+    --watch:#e6b44b; --watch-bg:#332a15; --watch-bar:#e0a63a; --rich:#8fa0b0; --rich-bg:#1e2932; --rich-bar:#5f7284;
+    --avoid:#ef7f64; --avoid-bg:#331d18; --noval:#8090a0; --noval-bg:#1c262f;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.5;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1080px;margin:0 auto;padding:clamp(20px,4vw,52px) clamp(16px,4vw,40px) 72px;}
+  .mast{border-bottom:2px solid var(--ink);padding-bottom:18px;margin-bottom:26px;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 20px;}
+  .mark{font-family:var(--serif);font-weight:600;letter-spacing:-.01em;font-size:clamp(30px,5vw,46px);line-height:.95;}
+  .mark .thin{color:var(--muted);font-style:italic;font-weight:500;}
+  .mast-sub{color:var(--muted);font-size:14px;max-width:52ch;margin-top:8px;}
+  .stamp{text-align:right;font-family:var(--mono);font-size:12px;color:var(--faint);letter-spacing:.02em;text-transform:uppercase;line-height:1.7;}
+  .stamp b{color:var(--ink);}
+  .read{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin-bottom:14px;}
+  .read-lead{font-family:var(--serif);font-size:clamp(18px,2.4vw,23px);line-height:1.35;text-wrap:balance;margin:0 0 4px;color:var(--buy);}
+  .read-note{color:var(--muted);font-size:14px;margin:0;}
+  .tiles{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;}
+  .tile{flex:1 1 74px;border:1px solid var(--line);border-radius:9px;padding:10px 12px;background:var(--surface);}
+  .tile .n{font-family:var(--mono);font-size:24px;font-weight:600;line-height:1;font-variant-numeric:tabular-nums;}
+  .tile .k{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-top:6px;}
+  .tile.buy{border-color:var(--buy);} .tile.buy .n{color:var(--buy)} .tile.close .n{color:var(--close)}
+  .tile.watch .n{color:var(--watch)} .tile.rich .n{color:var(--rich)} .tile.avoid .n{color:var(--avoid)} .tile.faded .n{color:var(--faint)}
+  .howto{padding:14px 20px;margin-bottom:26px;border-left:3px solid var(--accent);background:var(--accent-soft);border-radius:0 8px 8px 0;}
+  .howto p{margin:0;font-size:13.5px;color:var(--muted);} .howto b{color:var(--ink);font-weight:600;} .howto .term{color:var(--accent);font-weight:600;}
+  .bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:6px;}
+  .bar h2{font-family:var(--serif);font-size:19px;margin:0 auto 0 0;font-weight:600;}
+  .chip{font:inherit;font-size:12px;cursor:pointer;border:1px solid var(--line-strong);background:var(--surface);color:var(--muted);border-radius:20px;padding:5px 12px;letter-spacing:.02em;transition:all .12s;}
+  .chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink);}
+  .chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  .ledger{border-top:1px solid var(--line);}
+  .row{display:grid;gap:6px 18px;padding:16px 4px;border-bottom:1px solid var(--line);
+    grid-template-columns:96px minmax(150px,1.05fr) minmax(200px,1.35fr) 150px;
+    grid-template-areas:"chip name gauge nums" ". why why why";align-items:center;}
+  .row:hover{background:var(--card);}
+  .c-chip{grid-area:chip;} .c-name{grid-area:name;} .c-gauge{grid-area:gauge;} .c-nums{grid-area:nums;}
+  .c-why{grid-area:why;color:var(--muted);font-size:13px;line-height:1.45;max-width:82ch;}
+  .chip-rate{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.04em;padding:4px 9px;border-radius:5px;text-transform:uppercase;}
+  .r-BUY{background:var(--buy-bg);color:var(--buy);} .r-CLOSE{background:var(--close-bg);color:var(--close);}
+  .r-WATCH{background:var(--watch-bg);color:var(--watch);} .r-RICH{background:var(--rich-bg);color:var(--rich);}
+  .r-AVOID{background:var(--avoid-bg);color:var(--avoid);} .r-NOVAL{background:var(--noval-bg);color:var(--noval);border:1px dashed var(--line-strong);}
+  .tkr{font-weight:700;font-size:16px;letter-spacing:.01em;} .co{color:var(--muted);font-size:12.5px;}
+  .sec{color:var(--faint);font-size:11px;text-transform:uppercase;letter-spacing:.04em;margin-top:1px;}
+  .gauge{display:flex;flex-direction:column;gap:5px;}
+  .track{position:relative;height:9px;border-radius:5px;background:var(--rich-bg);border:1px solid var(--line);overflow:hidden;}
+  .fill{position:absolute;left:0;top:0;bottom:0;border-radius:5px 0 0 5px;}
+  .fill.close{background:var(--close-bar);} .fill.watch{background:var(--watch-bar);} .fill.rich{background:var(--rich-bar);}
+  .buyline{position:absolute;left:0;top:-3px;bottom:-3px;width:2px;background:var(--buy);border-radius:2px;}
+  .dot{position:absolute;top:50%;width:11px;height:11px;border-radius:50%;transform:translate(-50%,-50%);border:2px solid var(--card);}
+  .dot.close{background:var(--close);} .dot.watch{background:var(--watch);} .dot.rich{background:var(--rich);}
+  .atbuy{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:12px;font-weight:600;color:var(--buy);background:var(--buy-bg);border-radius:5px;padding:5px 10px;}
+  .glabels{display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;color:var(--faint);font-variant-numeric:tabular-nums;}
+  .glabels .drop{color:var(--ink);font-weight:600;} .gnote{font-size:12px;color:var(--muted);font-style:italic;}
+  .nums{text-align:right;font-variant-numeric:tabular-nums;}
+  .nums .now{font-family:var(--mono);font-size:16px;font-weight:600;}
+  .nums .sub{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:2px;}
+  .nums .sub .buyv{color:var(--buy);} .nums .mult .cm{color:var(--ink);font-weight:600;} .nums .dd{color:var(--faint);}
+  .glossary{margin-top:30px;border:1px solid var(--line);border-radius:10px;background:var(--card);overflow:hidden;}
+  .glossary>summary{cursor:pointer;list-style:none;padding:14px 20px;font-family:var(--serif);font-size:17px;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:8px;}
+  .glossary>summary::-webkit-details-marker{display:none;}
+  .glossary>summary::before{content:"+";font-family:var(--mono);color:var(--accent);font-weight:700;font-size:18px;line-height:1;}
+  .glossary[open]>summary::before{content:"–";}
+  .glossary>summary:hover{color:var(--accent);}
+  .glossary dl{margin:0;padding:4px 22px 20px;border-top:1px solid var(--line);}
+  .glossary dt{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--ink);margin-top:16px;letter-spacing:.01em;}
+  .glossary dt .gl-t{font-family:var(--sans);font-weight:500;font-size:12px;color:var(--faint);margin-left:8px;letter-spacing:0;}
+  .glossary dd{margin:4px 0 0;font-size:13.5px;color:var(--muted);line-height:1.5;max-width:78ch;}
+  .glossary dd b{color:var(--ink);font-weight:600;}
+  footer{margin-top:34px;padding-top:20px;border-top:1px solid var(--line);color:var(--faint);font-size:11.5px;line-height:1.6;}
+  @media (max-width:730px){
+    .row{grid-template-columns:1fr auto;grid-template-areas:"chip nums" "name nums" "gauge gauge" "why why";gap:8px 14px;}
+    .stamp{text-align:left;}
+  }
+</style>
+<main class="wrap">
+  <header class="mast">
+    <div>
+      <div class="mark">Silly Prices <span class="thin">— the board</span></div>
+      <p class="mast-sub">The largest US-listed companies against each name's buy target: the price at
+      which its EV/EBIT reaches the cheapest fifth of its own valuation history. One rule, no hand-set discounts.</p>
+    </div>
+    <div class="stamp">As of <b>2026-07-26</b><br>buy line = <b>20% %ile</b><br>51 scanned · 38 valued</div>
+  </header>
+
+  <section class="read">
+    <p class="read-lead">2 names at a buy — MSFT, MA.</p>
+    <p class="read-note">28 more are richly valued vs their own history.
+    Financials are valued on <b>P/B</b> and cyclical/high-growth names on <b>normalized</b>
+    (median-margin) earnings — same percentile rule, different lens. <b>ADRs</b> (TSMC, ASML) are now
+    folded in: their EV/EBIT is rebuilt in home currency, FX-converted, and the target handed back as a
+    USD ADR price. The remaining 13 still can't be valued: extreme-growth names whose
+    earnings inflected too hard even after normalizing (Nvidia, Tesla, AMD), class-dimensioned shares
+    (Visa, Berkshire), and recent IPOs/spin-offs without a decade of history (Arm, GE Vernova, Palantir).
+    A BUY is a signal, not an executed trade — Stage-2 diagnosis and staged entry still apply.</p>
+    <div class="tiles">
+      <div class="tile buy"><div class="n">2</div><div class="k">At buy</div></div>
+      <div class="tile close"><div class="n">4</div><div class="k">Close</div></div>
+      <div class="tile watch"><div class="n">3</div><div class="k">Watch</div></div>
+      <div class="tile rich"><div class="n">28</div><div class="k">Rich</div></div>
+      <div class="tile faded"><div class="n">13</div><div class="k">No value*</div></div>
+      <div class="tile avoid"><div class="n">1</div><div class="k">Avoid</div></div>
+    </div>
+  </section>
+
+  <div class="howto">
+    <p><b>How the buy price is set.</b> <span class="term">Buy target = the price at the 20%
+    percentile of a name's own EV/EBIT history</span> — the level it has traded at or below only about a
+    fifth of the last decade — priced on today's earnings, so the target rises as the business grows.
+    No hand-set discount: the single knob is that percentile. Financials use the same rule on <b>P/B</b>;
+    erratic-EBIT growth/cyclical names use it on <b>normalized</b> (own median-margin) earnings. A strict
+    owner-earnings DCF is shown as a deeper "floor" for scaling in — but only when it actually sits below
+    the buy target (for strong cash generators it lands above and is hidden). <b>* No value</b> = no usable
+    lens (extreme-growth, class-split shares, recent IPOs) — priced on dislocation + quality gates.</p>
+  </div>
+
+  <div class="bar">
+    <h2>The ledger</h2>
+    <button class="chip" data-f="all" aria-pressed="true">All</button>
+    <button class="chip" data-f="BUY" aria-pressed="false">Buy</button>
+    <button class="chip" data-f="CLOSE" aria-pressed="false">Close</button>
+    <button class="chip" data-f="WATCH" aria-pressed="false">Watch</button>
+    <button class="chip" data-f="RICH" aria-pressed="false">Rich</button>
+    <button class="chip" data-f="NOVAL" aria-pressed="false">No value</button>
+    <button class="chip" data-f="AVOID" aria-pressed="false">Avoid</button>
+  </div>
+  <section class="ledger" id="ledger"></section>
+
+  <details class="glossary">
+    <summary>Glossary — what the acronyms and terms mean</summary>
+    <dl>
+      <dt>P/B <span class="gl-t">Price-to-Book</span></dt>
+      <dd>Share price vs. the accounting value of the company's assets minus its debts. Used for
+      <b>financials</b> (banks, insurers), whose assets are mostly financial and marked near real value.</dd>
+
+      <dt>EV/EBIT <span class="gl-t">Enterprise Value / Earnings Before Interest &amp; Taxes</span></dt>
+      <dd><b>EV</b> = the cost to buy the whole business (market cap + debt − cash). <b>EBIT</b> = operating
+      profit before interest and tax. Together: how expensive the business is per dollar of operating profit —
+      like a P/E, but debt-aware. This is the default valuation lens here.</dd>
+
+      <dt>ADR <span class="gl-t">American Depositary Receipt</span></dt>
+      <dd>A US-traded, US-dollar stand-in for a foreign company's shares (e.g. TSMC, ASML), so it can be
+      bought on a US exchange.</dd>
+
+      <dt>FX <span class="gl-t">Foreign Exchange</span></dt>
+      <dd>Currency conversion. For ADRs, the valuation is built in the company's home currency and then
+      FX-converted into US dollars.</dd>
+
+      <dt>USD <span class="gl-t">US Dollars</span></dt>
+      <dd>The reporting currency for every target price shown on the board.</dd>
+
+      <dt>IPO <span class="gl-t">Initial Public Offering</span></dt>
+      <dd>When a private company first sells shares to the public and starts trading. Recent IPOs lack the
+      decade of history this method needs.</dd>
+
+      <dt>Normalized (median-margin) earnings</dt>
+      <dd>Profit smoothed to the company's typical (median) profit margin, so one freak good or bad year
+      doesn't distort the valuation. Used for erratic-EBIT growth/cyclical names.</dd>
+
+      <dt>Percentile rule</dt>
+      <dd>Ranking today's valuation against the name's own past — e.g. the buy line is the price at which it's
+      cheaper than ~80% of its own history.</dd>
+
+      <dt>Cyclical</dt>
+      <dd>A company whose profits rise and fall with the economy (automakers, chipmakers, industrials).</dd>
+
+      <dt>Spin-off</dt>
+      <dd>A new standalone company split out of an existing one (e.g. GE Vernova from GE) — so it has little
+      independent trading history.</dd>
+
+      <dt>Stage-2 diagnosis / staged entry</dt>
+      <dd>The follow-up process after a BUY signal: a deeper check (is the cheapness temporary or a real
+      deterioration?) before buying in gradually rather than all at once. A BUY is a signal, not a trade.</dd>
+    </dl>
+  </details>
+
+  <footer>
+    <p class="disc">Prices via Yahoo Finance; fundamentals from SEC EDGAR (latest annual filing, so multiples
+    lag TTM). Own-history multiples are partly inflated by the 2020–21 valuation peak, so the 20th percentile
+    is "cheapest fifth of the recent past," not of deep history. Buy targets are demanding by design — silly
+    prices are rare. Paper-money methodology validation, not investment advice.</p>
+  </footer>
+</main>
+
+<script>
+  const rows = [{"t": "MSFT", "co": "Microsoft", "sec": "Technology", "rate": "BUY", "now": 382, "dd": 30, "why": "At/below buy target $396 (EV/EBIT 23x \u2014 the buy percentile of its own history; normal 27x, now 22x). Gate flags: Piotroski, ROIC.", "buy": 396, "floor": 335, "drop": -0.0388, "mult": "22\u00d7 \u2192 norm 27\u00d7"}, {"t": "MA", "co": "Mastercard", "sec": "Financials", "rate": "BUY", "now": 530, "dd": 11, "why": "At/below buy target $544 (EV/EBIT 27x \u2014 the buy percentile of its own history; normal 29x, now 26x).", "buy": 544, "floor": 399, "drop": -0.0266, "mult": "26\u00d7 \u2192 norm 29\u00d7"}, {"t": "KO", "co": "Coca-Cola", "sec": "Consumer staples", "rate": "CLOSE", "now": 81, "dd": 4, "why": "Needs to fall 1% to the buy target $80 (EV/EBIT 24x vs normal 26x; now 25x). Gate flags: FCF.", "buy": 80, "floor": 34, "drop": 0.0112, "mult": "25\u00d7 \u2192 norm 26\u00d7"}, {"t": "PG", "co": "Procter & Gamble", "sec": "Consumer staples", "rate": "CLOSE", "now": 147, "dd": 12, "why": "Needs to fall 2% to the buy target $144 (EV/EBIT 19x vs normal 21x; now 19x). Gate flags: Piotroski.", "buy": 144, "floor": 101, "drop": 0.0172, "mult": "19\u00d7 \u2192 norm 21\u00d7"}, {"t": "META", "co": "Meta Platforms", "sec": "Communication svcs", "rate": "CLOSE", "now": 606, "dd": 23, "why": "Needs to fall 3% to the buy target $590 (EV/EBIT 19x vs normal 21x; now 19x). Gate flags: Piotroski.", "buy": 590, "floor": null, "drop": 0.0263, "mult": "19\u00d7 \u2192 norm 21\u00d7"}, {"t": "JNJ", "co": "Johnson & Johnson", "sec": "Healthcare", "rate": "CLOSE", "now": 259, "dd": 3, "why": "Needs to fall 7% to the buy target $242 (EV/EBIT 18x vs normal 22x; now 20x). Gate flags: Piotroski, FCF.", "buy": 242, "floor": 111, "drop": 0.0673, "mult": "20\u00d7 \u2192 norm 22\u00d7"}, {"t": "MRK", "co": "Merck", "sec": "Healthcare", "rate": "WATCH", "now": 130, "dd": 0, "why": "Needs to fall 10% to the buy target $117 (EV/EBIT 15x vs normal 24x; now 16x). Gate flags: Piotroski, FCF.", "buy": 117, "floor": 100, "drop": 0.1039, "mult": "16\u00d7 \u2192 norm 24\u00d7"}, {"t": "ORCL", "co": "Oracle", "sec": "Technology", "rate": "WATCH", "now": 120, "dd": 63, "why": "Needs to fall 14% to the buy target $103 (EV/EBIT 13x vs normal 15x; now 16x). Gate flags: Piotroski, Altman, Share.", "buy": 103, "floor": null, "drop": 0.1381, "mult": "16\u00d7 \u2192 norm 15\u00d7"}, {"t": "HD", "co": "Home Depot", "sec": "Consumer disc.", "rate": "WATCH", "now": 325, "dd": 23, "why": "Needs to fall 19% to the buy target $262 (EV/EBIT 15x vs normal 17x; now 18x). Gate flags: Piotroski, ROIC.", "buy": 262, "floor": null, "drop": 0.1935, "mult": "18\u00d7 \u2192 norm 17\u00d7"}, {"t": "RTX", "co": "RTX", "sec": "Industrials", "rate": "RICH", "now": 209, "dd": 1, "why": "Needs to fall 27% to the buy target $153 (EV/EBIT 22x vs normal 30x; now 30x). Gate flags: Altman, Beneish.", "buy": 153, "floor": 62, "drop": 0.2696, "mult": "30\u00d7 \u2192 norm 30\u00d7"}, {"t": "CVX", "co": "Chevron", "sec": "Energy", "rate": "RICH", "now": 194, "dd": 8, "why": "Needs to fall 29% to the buy target $138 (norm EV/EBIT 9x vs normal 10x; now 13x). Gate flags: Piotroski, ROIC.", "buy": 138, "floor": null, "drop": 0.2924, "mult": "13\u00d7 \u2192 norm 10\u00d7 norm"}, {"t": "GOOGL", "co": "Alphabet", "sec": "Communication svcs", "rate": "RICH", "now": 318, "dd": 21, "why": "Needs to fall 31% to the buy target $219 (EV/EBIT 21x vs normal 26x; now 30x). Gate flags: Piotroski.", "buy": 219, "floor": null, "drop": 0.3096, "mult": "30\u00d7 \u2192 norm 26\u00d7"}, {"t": "UNH", "co": "UnitedHealth", "sec": "Healthcare", "rate": "RICH", "now": 424, "dd": 3, "why": "Needs to fall 37% to the buy target $265 (EV/EBIT 16x vs normal 16x; now 23x). Gate flags: ROIC, Debt/EBITDA.", "buy": 265, "floor": null, "drop": 0.3736, "mult": "23\u00d7 \u2192 norm 16\u00d7"}, {"t": "WFC", "co": "Wells Fargo", "sec": "Financials", "rate": "RICH", "now": 86, "dd": 11, "why": "Needs to fall 37% to the buy target $54 (P/B 1.0x vs normal 1.2x; now 1.5x).", "buy": 54, "floor": -53, "drop": 0.3742, "mult": "1.5\u00d7 \u2192 norm 1.2\u00d7 P/B"}, {"t": "BAC", "co": "Bank of America", "sec": "Financials", "rate": "RICH", "now": 61, "dd": 1, "why": "Needs to fall 39% to the buy target $37 (P/B 0.9x vs normal 1.1x; now 1.6x).", "buy": 37, "floor": -8, "drop": 0.3892, "mult": "1.6\u00d7 \u2192 norm 1.1\u00d7 P/B"}, {"t": "COST", "co": "Costco", "sec": "Consumer staples", "rate": "RICH", "now": 926, "dd": 15, "why": "Needs to fall 41% to the buy target $545 (EV/EBIT 23x vs normal 28x; now 39x).", "buy": 545, "floor": null, "drop": 0.4119, "mult": "39\u00d7 \u2192 norm 28\u00d7"}, {"t": "AXP", "co": "American Express", "sec": "Financials", "rate": "RICH", "now": 341, "dd": 11, "why": "Needs to fall 42% to the buy target $198 (P/B 4.1x vs normal 4.7x; now 7.1x).", "buy": 198, "floor": null, "drop": 0.4177, "mult": "7.1\u00d7 \u2192 norm 4.7\u00d7 P/B"}, {"t": "PM", "co": "Philip Morris Intl", "sec": "Consumer staples", "rate": "RICH", "now": 191, "dd": 2, "why": "Needs to fall 44% to the buy target $108 (EV/EBIT 11x vs normal 13x; now 20x).", "buy": 108, "floor": null, "drop": 0.4361, "mult": "20\u00d7 \u2192 norm 13\u00d7"}, {"t": "LLY", "co": "Eli Lilly", "sec": "Healthcare", "rate": "RICH", "now": 1186, "dd": 4, "why": "Needs to fall 44% to the buy target $669 (EV/EBIT 24x vs normal 38x; now 41x). Gate flags: FCF, Beneish.", "buy": 669, "floor": 132, "drop": 0.4362, "mult": "41\u00d7 \u2192 norm 38\u00d7"}, {"t": "WMT", "co": "Walmart", "sec": "Consumer staples", "rate": "RICH", "now": 108, "dd": 19, "why": "Needs to fall 49% to the buy target $55 (EV/EBIT 16x vs normal 18x; now 30x). Gate flags: Share.", "buy": 55, "floor": 53, "drop": 0.4926, "mult": "30\u00d7 \u2192 norm 18\u00d7"}, {"t": "JPM", "co": "JPMorgan", "sec": "Financials", "rate": "RICH", "now": 350, "dd": 0, "why": "Needs to fall 50% to the buy target $176 (P/B 1.3x vs normal 1.5x; now 2.7x).", "buy": 176, "floor": null, "drop": 0.4973, "mult": "2.7\u00d7 \u2192 norm 1.5\u00d7 P/B"}, {"t": "ASML", "co": "ASML", "sec": "Semiconductors \u00b7 ADR", "rate": "RICH", "now": 1803, "dd": 9, "why": "Needs to fall 51% to the buy target $885 (EV/EBIT, FX-adj from EUR 26x vs normal 30x; now 54x).", "buy": 885, "floor": null, "drop": 0.5091, "mult": "54\u00d7 \u2192 norm 30\u00d7"}, {"t": "AAPL", "co": "Apple", "sec": "Technology", "rate": "RICH", "now": 322, "dd": 4, "why": "Needs to fall 56% to the buy target $141 (EV/EBIT 16x vs normal 22x; now 37x). Gate flags: FCF.", "buy": 141, "floor": null, "drop": 0.5618, "mult": "37\u00d7 \u2192 norm 22\u00d7"}, {"t": "GS", "co": "Goldman Sachs", "sec": "Financials", "rate": "RICH", "now": 1075, "dd": 7, "why": "Needs to fall 64% to the buy target $387 (P/B 1.0x vs normal 1.2x; now 2.7x).", "buy": 387, "floor": null, "drop": 0.6399, "mult": "2.7\u00d7 \u2192 norm 1.2\u00d7 P/B"}, {"t": "ABBV", "co": "AbbVie", "sec": "Healthcare", "rate": "RICH", "now": 257, "dd": 2, "why": "Needs to fall 65% to the buy target $90 (EV/EBIT 15x vs normal 20x; now 34x). Gate flags: Altman, Debt/EBITDA.", "buy": 90, "floor": null, "drop": 0.6494, "mult": "34\u00d7 \u2192 norm 20\u00d7"}, {"t": "MS", "co": "Morgan Stanley", "sec": "Financials", "rate": "RICH", "now": 215, "dd": 6, "why": "Needs to fall 66% to the buy target $73 (P/B 1.0x vs normal 1.3x; now 3.0x).", "buy": 73, "floor": null, "drop": 0.6616, "mult": "3.0\u00d7 \u2192 norm 1.3\u00d7 P/B"}, {"t": "CSCO", "co": "Cisco", "sec": "Technology", "rate": "RICH", "now": 113, "dd": 13, "why": "Needs to fall 67% to the buy target $37 (EV/EBIT 14x vs normal 16x; now 40x). Gate flags: ROIC.", "buy": 37, "floor": null, "drop": 0.6689, "mult": "40\u00d7 \u2192 norm 16\u00d7"}, {"t": "TXN", "co": "Texas Instruments", "sec": "Semiconductors", "rate": "RICH", "now": 285, "dd": 14, "why": "Needs to fall 67% to the buy target $93 (EV/EBIT 16x vs normal 21x; now 45x).", "buy": 93, "floor": 89, "drop": 0.6749, "mult": "45\u00d7 \u2192 norm 21\u00d7"}, {"t": "CAT", "co": "Caterpillar", "sec": "Industrials", "rate": "RICH", "now": 895, "dd": 16, "why": "Needs to fall 70% to the buy target $270 (EV/EBIT 14x vs normal 19x; now 40x). Gate flags: Piotroski, ROIC.", "buy": 270, "floor": null, "drop": 0.6977, "mult": "40\u00d7 \u2192 norm 19\u00d7"}, {"t": "TSM", "co": "TSMC", "sec": "Semiconductors \u00b7 ADR", "rate": "RICH", "now": 416, "dd": 13, "why": "Needs to fall 71% to the buy target $122 (EV/EBIT 14x vs normal 20x; now 52x).", "buy": 122, "floor": null, "drop": 0.7065, "mult": "52\u00d7 \u2192 norm 20\u00d7"}, {"t": "DELL", "co": "Dell", "sec": "Technology", "rate": "RICH", "now": 439, "dd": 6, "why": "Needs to fall 73% to the buy target $117 (EV/EBIT 12x vs normal 15x; now 39x). Gate flags: Beneish.", "buy": 117, "floor": null, "drop": 0.7328, "mult": "39\u00d7 \u2192 norm 15\u00d7"}, {"t": "INTC", "co": "Intel", "sec": "Semiconductors", "rate": "RICH", "now": 100, "dd": 29, "why": "Needs to fall 73% to the buy target $27 (norm EV/EBIT 11x vs normal 13x; now 36x). Gate flags: Piotroski, ROIC, Gross, Debt/EBITDA, Share, Revenue.", "buy": 27, "floor": -6, "drop": 0.733, "mult": "36\u00d7 \u2192 norm 13\u00d7 norm"}, {"t": "AMAT", "co": "Applied Materials", "sec": "Semiconductors", "rate": "RICH", "now": 563, "dd": 22, "why": "Needs to fall 77% to the buy target $129 (EV/EBIT 12x vs normal 15x; now 55x). Gate flags: Piotroski, ROIC.", "buy": 129, "floor": null, "drop": 0.7716, "mult": "55\u00d7 \u2192 norm 15\u00d7"}, {"t": "KLAC", "co": "KLA", "sec": "Semiconductors", "rate": "RICH", "now": 219, "dd": 28, "why": "Needs to fall 78% to the buy target $47 (EV/EBIT 13x vs normal 16x; now 60x).", "buy": 47, "floor": null, "drop": 0.7849, "mult": "60\u00d7 \u2192 norm 16\u00d7"}, {"t": "AVGO", "co": "Broadcom", "sec": "Semiconductors", "rate": "RICH", "now": 392, "dd": 19, "why": "Needs to fall 81% to the buy target $76 (norm EV/EBIT 21x vs normal 27x; now 113x). Gate flags: Beneish, Share.", "buy": 76, "floor": null, "drop": 0.8063, "mult": "113\u00d7 \u2192 norm 27\u00d7 norm"}, {"t": "LRCX", "co": "Lam Research", "sec": "Semiconductors", "rate": "RICH", "now": 320, "dd": 26, "why": "Needs to fall 82% to the buy target $59 (EV/EBIT 13x vs normal 16x; now 70x). Gate flags: Share.", "buy": 59, "floor": null, "drop": 0.8166, "mult": "70\u00d7 \u2192 norm 16\u00d7"}, {"t": "MU", "co": "Micron", "sec": "Semiconductors", "rate": "RICH", "now": 990, "dd": 18, "why": "Needs to fall 94% to the buy target $60 (norm EV/EBIT 10x vs normal 12x; now 159x).", "buy": 60, "floor": 21, "drop": 0.9394, "mult": "159\u00d7 \u2192 norm 12\u00d7 norm"}, {"t": "NVDA", "co": "Nvidia", "sec": "Semiconductors", "rate": "NOVAL", "now": 209, "dd": 11, "why": "EV/EBIT history too erratic even after normalizing on margins (median 47x) \u2014 price signal + gates only.", "note": "erratic EBIT"}, {"t": "AMZN", "co": "Amazon", "sec": "Consumer disc.", "rate": "NOVAL", "now": 234, "dd": 15, "why": "EV/EBIT history too erratic even after normalizing on margins (median 66x) \u2014 price signal + gates only.", "note": "erratic EBIT"}, {"t": "TSLA", "co": "Tesla", "sec": "Consumer disc.", "rate": "NOVAL", "now": 320, "dd": 35, "why": "EV/EBIT history too erratic even after normalizing on margins (median 190x) \u2014 price signal + gates only.", "note": "erratic EBIT"}, {"t": "BRK-B", "co": "Berkshire Hathaway", "sec": "Financials", "rate": "NOVAL", "now": 491, "dd": 4, "why": "Financial \u2014 P/B history too thin or erratic for a reliable normal; rated on price dislocation + gates only.", "note": "financial \u2014 EV/EBIT n/a"}, {"t": "AMD", "co": "AMD", "sec": "Semiconductors", "rate": "NOVAL", "now": 540, "dd": 7, "why": "EV/EBIT history too erratic even after normalizing on margins (median 80x) \u2014 price signal + gates only.", "note": "erratic EBIT"}, {"t": "V", "co": "Visa", "sec": "Financials", "rate": "NOVAL", "now": 352, "dd": 4, "why": "Shares class-dimensioned in XBRL (e.g. Visa) \u2014 no valuation bands built; rated on price dislocation + gates only.", "note": "no valuation"}, {"t": "XOM", "co": "Exxon Mobil", "sec": "Energy", "rate": "NOVAL", "now": 157, "dd": 9, "why": "insufficient EDGAR annual history (data gap or unmatched CIK)", "note": "data gap"}, {"t": "GE", "co": "GE Aerospace", "sec": "Industrials", "rate": "NOVAL", "now": 349, "dd": 8, "why": "EV/EBIT history too erratic even after normalizing on margins (median 31x) \u2014 price signal + gates only.", "note": "erratic EBIT"}, {"t": "PLTR", "co": "Palantir", "sec": "Technology", "rate": "NOVAL", "now": 123, "dd": 40, "why": "No usable valuation history (no operating-income subtotal, or thin data) \u2014 price signal + gates only.", "note": "no EV/EBIT band"}, {"t": "ARM", "co": "Arm Holdings", "sec": "Semiconductors \u00b7 ADR", "rate": "NOVAL", "now": 283, "dd": 36, "why": "ADR \u2014 insufficient valuation history; rated on price dislocation + gates only.", "note": "ADR \u2014 thin history"}, {"t": "GEV", "co": "GE Vernova", "sec": "Industrials", "rate": "NOVAL", "now": 1031, "dd": 12, "why": "No usable valuation history (no operating-income subtotal, or thin data) \u2014 price signal + gates only.", "note": "no EV/EBIT band"}, {"t": "NFLX", "co": "Netflix", "sec": "Communication svcs", "rate": "NOVAL", "now": 69, "dd": 45, "why": "EV/EBIT history too erratic even after normalizing on margins (median 51x) \u2014 price signal + gates only.", "note": "erratic EBIT"}, {"t": "PANW", "co": "Palo Alto Networks", "sec": "Technology", "rate": "NOVAL", "now": 326, "dd": 9, "why": "No usable valuation history (no operating-income subtotal, or thin data) \u2014 price signal + gates only.", "note": "no EV/EBIT band"}, {"t": "NVO", "co": "Novo Nordisk", "sec": "Healthcare \u00b7 ADR", "rate": "AVOID", "now": 48, "dd": 33, "why": "Stage-2 value-trap rejection \u2014 deteriorating fundamentals, not sentiment.", "buy": 76, "floor": null, "drop": -0.5852, "mult": "11\u00d7 \u2192 norm 21\u00d7"}];
+  const money = v => "$" + v.toLocaleString("en-US");
+  const MAXDROP = 0.85;
+  function gaugeHTML(r){
+    if(r.drop == null) return `<div class="gnote">${r.note}</div>`;
+    if(r.drop <= 0) return `<span class="atbuy">✓ at buy ≤ ${money(r.buy)}</span>`;
+    const w = Math.min(100, (r.drop / MAXDROP) * 100);
+    const kind = r.rate === "CLOSE" ? "close" : r.rate === "WATCH" ? "watch" : "rich";
+    return `<div class="gauge"><div class="track">
+        <div class="fill ${kind}" style="width:${w}%"></div>
+        <div class="buyline"></div><div class="dot ${kind}" style="left:${w}%"></div></div>
+      <div class="glabels"><span>buy ≤ ${money(r.buy)}</span>
+        <span class="drop">−${Math.round(r.drop*100)}% to buy</span></div></div>`;
+  }
+  function numsHTML(r){
+    if(r.buy){
+      const floor = r.floor ? ` · floor ${money(r.floor)}` : "";
+      const mult = r.mult ? `<div class="sub mult">${r.mult} · ${r.dd}%↓</div>` : "";
+      return `<div class="now">${money(r.now)}</div>
+        <div class="sub"><span class="buyv">buy ${money(r.buy)}</span>${floor}</div>${mult}`;
+    }
+    return `<div class="now">${money(r.now)}</div><div class="sub dd">${r.dd}% off high</div>`;
+  }
+  function rowHTML(r){
+    return `<div class="row" data-rate="${r.rate}">
+      <div class="c-chip"><span class="chip-rate r-${r.rate}">${r.rate === "NOVAL" ? "NO VAL" : r.rate}</span></div>
+      <div class="c-name"><div class="tkr">${r.t}</div><div class="co">${r.co}</div><div class="sec">${r.sec}</div></div>
+      <div class="c-gauge">${gaugeHTML(r)}</div>
+      <div class="c-nums nums">${numsHTML(r)}</div>
+      <div class="c-why">${r.why}</div></div>`;
+  }
+  document.getElementById("ledger").innerHTML = rows.map(rowHTML).join("");
+  const chips = document.querySelectorAll(".chip");
+  chips.forEach(c => c.addEventListener("click", () => {
+    chips.forEach(x => x.setAttribute("aria-pressed","false"));
+    c.setAttribute("aria-pressed","true");
+    const f = c.dataset.f;
+    document.querySelectorAll(".row").forEach(row => {
+      row.style.display = (f === "all" || row.dataset.rate === f) ? "" : "none";
+    });
+  }));
+</script>
+</body>
+</html>
