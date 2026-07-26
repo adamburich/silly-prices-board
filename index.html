@@ -104,12 +104,25 @@
   .glossary dd{margin:4px 0 0;font-size:13.5px;color:var(--muted);line-height:1.5;max-width:78ch;}
   .glossary dd b{color:var(--ink);font-weight:600;}
   footer{margin-top:34px;padding-top:20px;border-top:1px solid var(--line);color:var(--faint);font-size:11.5px;line-height:1.6;}
+  /* Layout: single column stacks in reading order (intro, glossary, then ledger)
+     via flex order; wide viewports put intro+glossary on the left, ledger on the right. */
+  .layout{display:flex;flex-direction:column;}
+  .col-left{order:0;} .glossary{order:1;} .col-right{order:2;margin-top:26px;}
+  @media (min-width:1120px){
+    .wrap{max-width:1340px;}
+    .layout{display:grid;grid-template-columns:minmax(300px,4fr) minmax(680px,8fr);grid-template-rows:auto 1fr;column-gap:34px;align-items:start;}
+    .col-left{grid-column:1;grid-row:1;}
+    .glossary{grid-column:1;grid-row:2;}
+    .col-right{grid-column:2;grid-row:1 / span 2;margin-top:0;}
+  }
   @media (max-width:730px){
     .row{grid-template-columns:1fr auto;grid-template-areas:"chip nums" "name nums" "gauge gauge" "why why";gap:8px 14px;}
     .stamp{text-align:left;}
   }
 </style>
 <main class="wrap">
+  <div class="layout">
+    <div class="col-left">
   <header class="mast">
     <div>
       <div class="mark">Silly Prices <span class="thin">— the board</span></div>
@@ -149,7 +162,9 @@
     the buy target (for strong cash generators it lands above and is hidden). <b>* No value</b> = no usable
     lens (extreme-growth, class-split shares, recent IPOs) — priced on dislocation + quality gates.</p>
   </div>
+    </div>
 
+    <div class="col-right">
   <div class="bar">
     <h2>The ledger</h2>
     <button class="chip" data-f="all" aria-pressed="true">All</button>
@@ -161,6 +176,7 @@
     <button class="chip" data-f="AVOID" aria-pressed="false">Avoid</button>
   </div>
   <section class="ledger" id="ledger"></section>
+    </div>
 
   <details class="glossary">
     <summary>Glossary — what the acronyms and terms mean</summary>
@@ -209,6 +225,7 @@
       deterioration?) before buying in gradually rather than all at once. A BUY is a signal, not a trade.</dd>
     </dl>
   </details>
+  </div>
 
   <footer>
     <p class="disc">Prices via Yahoo Finance; fundamentals from SEC EDGAR (latest annual filing, so multiples
