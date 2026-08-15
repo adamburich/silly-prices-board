@@ -1,0 +1,71 @@
+{
+  "record_version": 1,
+  "generated": "2026-08-14",
+  "purpose": "Prospective-validation record (handoff \u00a714). Sufficient to reconstruct the decision without model memory.",
+  "stage1": {
+    "ticker": "PAPER1",
+    "asof": "2026-08-14",
+    "price": 42.0,
+    "drawdown": 0.46,
+    "sector_benchmark_drawdown": 0.05,
+    "valuation_percentile": 0.02,
+    "basis": "EV/EBIT",
+    "buy_below": 52.0,
+    "pct_to_buy": -0.192,
+    "gates_failed": 1,
+    "trap_flags": [],
+    "gate_summary": "  [PASS] Piotroski F-Score >= 7: 8\n  [FAIL] ROIC > WACC, stable/rising: 2023:18% 2024:16% 2025:15%\n  [PASS] Altman Z > 2.99: 4.10",
+    "latest_filing": "2026-07-28",
+    "valuation_history_semantics": "ALL point-in-time visible history (\u00a713.2)"
+  },
+  "stage2": {
+    "evidence_prompt": "Company: PAPER1\nRating: BUY (screened cheap vs its own history)\nCurrent price: $42.00\n52-week drawdown: 46% (sector benchmark XLK: 5%)\nValuation: buy target $52 (-24% below current); EV/EBIT now 10x vs own-history normal 21x\n\nDeterministic quality gates (from primary SEC filings):\n  [PASS] Piotroski F-Score >= 7: 8\n  [FAIL] ROIC > WACC, stable/rising: 2023:18% 2024:16% 2025:15%\n  [PASS] Altman Z > 2.99: 4.10\n\nRegime context: Market regime (2026-08-14): BOOM (stress calm, S&P 0% off high, above 200dma). The market is healthy (near its highs, credit calm), so this name is cheap AGAINST a rising market \u2014 its discount is idiosyncratic. Base rate: statistically-cheap names in healthy markets are DISPROPORTIONATELY value traps; the market has usually spotted something real. Apply maximum skepticism to 'temporary' calls. This name's cheapness reads as IDIOSYNCRATIC under the current regime (own drawdown vs sector benchmark). These are base rates, not a verdict \u2014 judge THIS company on the evidence you find.\n\nResearch why PAPER1 is trading cheap/down right now, then render the temporary-vs-permanent verdict per the framework. Use the most recent information you can find.",
+    "evidence_refs": [
+      "https://example.invalid/q2-results",
+      "https://example.invalid/filing-0001.htm"
+    ],
+    "provider": "claude-code",
+    "model": "plan-agent",
+    "prompt_sha": "9769e910fcd9",
+    "params": {
+      "backend": "agent"
+    },
+    "decided_at": "2026-08-15T03:47:54.121200+00:00",
+    "classification": "temporary",
+    "confidence": "medium",
+    "recommendation": "proceed to Stage 3",
+    "summary": "Paper candidate: temporary dislocation.",
+    "invalidated_by": "first diagnosis",
+    "price_at_run": 42.0,
+    "trap_flags_at_run": [],
+    "regime_at_run": "BOOM"
+  },
+  "authorization": {
+    "stage2_ready": true,
+    "why_not": "",
+    "rating_before_veto": "BUY",
+    "rating_after_veto": "BUY",
+    "exposure_authorized": true,
+    "reason": "Cheap vs its own history."
+  },
+  "ladder": {
+    "action": "open",
+    "reason": "episode reopened (out of BUY >= 28d)",
+    "lot_no": 1,
+    "cap": 3,
+    "prior_episode": {
+      "episode_opened": "2026-07-05",
+      "lots": 3,
+      "last_fill_date": "2026-07-10",
+      "last_fill_price": 44.0,
+      "last_buy_seen": "2026-07-15"
+    },
+    "new_episode": true
+  },
+  "resulting_state": {
+    "thesis_of_record": "temporary",
+    "thesis_asof": "2026-08-14",
+    "thesis_persists_until": "trim or explicit closure (\u00a713.11)",
+    "episode_after": "new episode, lot 1"
+  }
+}

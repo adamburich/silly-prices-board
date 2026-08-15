@@ -1,0 +1,84 @@
+{
+  "artifact": "cap3-ladder-enforcement-audit",
+  "generated": "2026-08-14",
+  "claim_tested": "Handoff \u00a74.5 / invariant 14: maximum actual lots per LIVE LADDER EPISODE is 3, and fills above 3 per episode are zero in the cap3 arms.",
+  "verdict": "UPHELD",
+  "max_lots_in_any_episode": 3,
+  "fills_above_lot_3": 0,
+  "total_fills_examined": 856269,
+  "total_episodes_examined": 64081,
+  "source": {
+    "file": "reports/research/mechb/stage2-authorization-lifetime-ledger.json",
+    "sha256": "ec723d05d7f069f2996a64997d60989ae7932f14401927ea645fbc57d9525648",
+    "retained_at": "D:\\Documents\\Git\\silly-prices-large-artifacts\\reports\\research\\mechb\\stage2-authorization-lifetime-ledger.json",
+    "note": "Archived out of the repo for size; see reports/large-research-artifacts.json. This audit is a group-by over evidence that already existed \u2014 no campaign was rerun to produce it."
+  },
+  "episode_definition": "window | arm | kind | rep | tpr | tnr | horizon | ticker | entry. The replicate and skill coordinates belong in the key because the same ticker and entry date recur in every frontier cell; collapsing them would merge independent episodes and understate the maximum.",
+  "arms": [
+    {
+      "window": "W1",
+      "arm": "PERSISTENT",
+      "episodes": 18865,
+      "fills": 278042,
+      "max_lots_in_any_episode": 3,
+      "fills_above_lot_3": 0,
+      "episodes_by_max_lot": {
+        "1": 10386,
+        "2": 5087,
+        "3": 3392
+      },
+      "violations": []
+    },
+    {
+      "window": "W1",
+      "arm": "REDIAGNOSE",
+      "episodes": 24914,
+      "fills": 324060,
+      "max_lots_in_any_episode": 3,
+      "fills_above_lot_3": 0,
+      "episodes_by_max_lot": {
+        "1": 13543,
+        "2": 6909,
+        "3": 4462
+      },
+      "violations": []
+    },
+    {
+      "window": "W2",
+      "arm": "PERSISTENT",
+      "episodes": 8706,
+      "fills": 113534,
+      "max_lots_in_any_episode": 3,
+      "fills_above_lot_3": 0,
+      "episodes_by_max_lot": {
+        "1": 3915,
+        "2": 2576,
+        "3": 2215
+      },
+      "violations": []
+    },
+    {
+      "window": "W2",
+      "arm": "REDIAGNOSE",
+      "episodes": 11596,
+      "fills": 140633,
+      "max_lots_in_any_episode": 3,
+      "fills_above_lot_3": 0,
+      "episodes_by_max_lot": {
+        "1": 5214,
+        "2": 3453,
+        "3": 2929
+      },
+      "violations": []
+    }
+  ],
+  "coverage": {
+    "covers": "W1 and W2, PERSISTENT and REDIAGNOSE arms: 64,081 live ladder episodes and 856,269 fills. Max lots per episode is 3 and fills above lot 3 are zero in EVERY cell, not just in aggregate.",
+    "does_not_cover": [
+      "The monthly/lump contribution split. Handoff \u00a74.5 states the claim for 'monthly/lump cap3 arms', but this ledger does not carry a regime/exposure dimension, so the audit cannot break the result out that way.",
+      "The THESIS_CAP3 arm. The ledger records arm values PERSISTENT and REDIAGNOSE only."
+    ],
+    "why_not_built_from_the_cap3_shards": "The natural source would be reports/research/mechb/stage2-requirements/shard-*-cap3-*.json, but those record no per-episode fill instrumentation \u2014 their metrics stop at deployment and returns. Only the later uncapped-episode-exposure diagnostic added fills, max_fills_per_episode and actual_episode_fill_distribution. That asymmetry is the likely reason this audit never existed: the parent campaign never emitted the numbers it would have been built from.",
+    "corroborating_contrast": "In the uncapped arm, with the same generator and the cap removed, actual_episode_fill_distribution reaches max 20 and max_fills_per_episode has a median of 14 (shard-W1-uncapped-lump.json). The cap is therefore the binding constraint here, not a coincidence of short episodes \u2014 without it, episodes routinely run far past three lots."
+  }
+}

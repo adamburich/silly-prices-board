@@ -1,0 +1,114 @@
+{
+  "artifact": "production-baseline",
+  "generated": "2026-08-15",
+  "note": "Reproducible baseline for the clean production port. Every value is read from the running system at generation time, not transcribed. The git SHA below is the commit this describes; the baseline TAG is applied to the commit that adds this file, one later.",
+  "git": {
+    "commit": "083e631839f50bf4b02a13f0f44fe93d9571d2f7",
+    "branch": "main",
+    "describes_commit_subject": "Closeout: invariants 17-18 asserted, runtime independence guarded, \u00c2\u00a714 smoke test",
+    "research_tag": "research-mechb-v2-2026-08-14"
+  },
+  "stage0": {
+    "model": "curated eligibility registry; no formula may add a company",
+    "states": [
+      "eligible",
+      "watch",
+      "excluded"
+    ],
+    "counts": {
+      "eligible": 507,
+      "watch": 0,
+      "excluded": 1
+    },
+    "registry_sha256": "3bfa1202686acb5ad8ddad5431887081b63ad71a8fa4962b0dcab5fea7e45a0c",
+    "history_sha256": "2968b397171309d88e2395bbbb1dc1eacbcebceee76fd41446bfe5d34d7fed3d",
+    "history_rows": 508,
+    "only_eligible_enters_stage1": true
+  },
+  "stage1": {
+    "valuation_history_semantics": "ALL point-in-time visible history available as of the decision date, subject to the existing minimum-history requirement. NOT truncated to a trailing 10-year or other rolling window (\u00a713.2, frozen 2026-08-14).",
+    "build_bands_max_years_default": null,
+    "buy_percentile": 0.05,
+    "history_min_years": 6,
+    "drawdown_trigger": 0.2
+  },
+  "stage2": {
+    "prompt_sha": "9769e910fcd9",
+    "provider": "claude-code",
+    "model": "plan-agent",
+    "params": {
+      "backend": "agent"
+    },
+    "configured": true,
+    "fail_closed_when_unconfigured": true,
+    "authorizing_classifications": [
+      "temporary"
+    ],
+    "max_age_days": 7,
+    "max_age_days_permanent": 90,
+    "max_age_semantics": "Evidence-freshness gate for NEW exposure, not a thesis-expiration timer. The thesis of record survives until trim or explicit closure; stale evidence suspends adds and reopened episodes only, and can never itself cause a sale (\u00a713.11, frozen 2026-08-14).",
+    "reprice_pct": 0.12
+  },
+  "stage4_ladder": {
+    "cap": 3,
+    "cap_semantics": "cap3 is per LIVE LADDER EPISODE, not per Stage-2 thesis label. One thesis may fund more than three lots across inactivity-separated episodes.",
+    "episode_close_days": 28,
+    "lot_spacing_days": 7,
+    "only_lower_price_adds": true,
+    "revalidation_before_each_add": "structural \u2014 rows rebuilt and Stage 2 re-run before the ladder",
+    "enforcement_audit": "reports/research/mechb/cap3-ladder-enforcement-audit.json (UPHELD)"
+  },
+  "stage5_trim": {
+    "rule": "BOTH legs: price >= the name's own sell line (its valuation basis at sell_percentile of its OWN history) AND price >= an optimistic owner-earnings DCF ceiling. History-leg-only fallback where no DCF anchor exists.",
+    "sell_percentile": 0.97,
+    "policy_default_sell_percentile": 0.97,
+    "precedence": [
+      "SELL-REVIEW",
+      "REVIEW",
+      "TRIM",
+      "HOLD"
+    ],
+    "AUTOMATIC_EXECUTION_AUTHORIZED": false,
+    "status": "REVIEW SIGNAL ONLY \u2014 automatic execution not authorized (frozen 2026-08-14)",
+    "provenance": "reports/sell-threshold-decision-2026-08-11.md"
+  },
+  "sleeves": {
+    "a_target": 0.67,
+    "b_target": 0.33,
+    "reserve_ticker": "SPY",
+    "reserve_weights": [
+      [
+        "SPY",
+        1.0
+      ]
+    ],
+    "reserve_definition": "The A reserve is SPY only. A funds positions by selling SPY from its own reserve and never by touching B.",
+    "rebalance_policy": "no scheduled rebalance; sleeves drift, contributions split at target",
+    "legacy_qqq_treatment": "The pre-existing QQQ block is NOT sold. Removing QQQ from [reserve.weights] makes it unreachable by the sweep and by _fund_from_reserve, so it stops being spendable by A and becomes the legacy seed of the protected B sleeve. Sleeves converge on contributions alone."
+  },
+  "mechanism_b": {
+    "definition": "QQQ union MGK, resolved to canonical securities, ranked by point-in-time market cap, top N",
+    "primary_n": 25,
+    "weighting": "cap-weighted on IMPLIED SHARES (marketcap / price from the same row)",
+    "between_snapshots": "PRICE-DRIFTING \u2014 units fixed, weights drift",
+    "on_gap": "pool left exactly as it was; carry forward unchanged",
+    "reserve": "none \u2014 fully invested from the first confirmed snapshot",
+    "reconstitution_cadence": "monthly",
+    "reconstitution_policy": "Mechanism-B reconstitution: MONTHLY (frozen 2026-08-14). Rebuild on the first trading opportunity after a COMPLETE confirmed monthly QQQ + MGK snapshot; rank the union by current market cap, take the top 25, establish implied-share units. Units are then fixed and weights price-drift until the next reconstitution. If either source is missing or incomplete, the prior portfolio is carried forward unchanged. No partial and no intra-month reconstitutions."
+  },
+  "verification": {
+    "tests": 200,
+    "test_command": "py -3 -m unittest discover -s tests",
+    "ci_workflow": ".github/workflows/invariants.yml",
+    "ci_result": "success",
+    "ci_needs_network": false,
+    "ci_needs_private_submodule": false,
+    "prospective_logging_smoke": "scripts/prospective_logging_smoke.py (all 7 facts reconstructed)"
+  },
+  "provisional": [
+    "Stage-2 v1 model selection remains a prospective-validation decision; [stage2] records what is in force today, not a blessed choice.",
+    "Trim automatic execution is deliberately unauthorized.",
+    "Sleeves sit near 50/50 against the 67/33 target and converge on contributions only.",
+    "Mechanism B holds the legacy QQQ block plus whatever B25 contributions build; it is not yet a pure B25 basket."
+  ]
+}

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Monthly variants — train vs test scatter</title>
+<style>
+:root{color-scheme:light;
+ --page:#faf9f5;--tp:#0b0b0b;--ts:#57564f;--mut:#7d7c74;
+ --grid:#e1e0d9;--base:#c3c2b7;--border:rgba(11,11,11,.10);
+ --s95:#5a7d9a;--s99:#c96442;--hold:#8a8778;--hl:rgba(201,100,66,.14)}
+@media (prefers-color-scheme:dark){:root{color-scheme:dark;
+ --page:#262624;--tp:#f5f4ee;--ts:#b8b6ac;--mut:#8f8d83;
+ --grid:#2c2c2a;--base:#383835;--border:rgba(255,255,255,.10);
+ --hl:rgba(201,100,66,.22)}}
+body{margin:0;font:14px/1.5 ui-sans-serif,system-ui,sans-serif;
+ background:var(--page);color:var(--tp);-webkit-font-smoothing:antialiased}
+.wrap{max-width:980px;margin:0 auto;padding:32px 20px 60px}
+h1{font-size:19px;font-weight:700;margin:0 0 4px}
+.sub{font-size:12.5px;color:var(--ts);margin:0 0 14px}
+svg{width:100%;height:auto;display:block}
+.gridline{stroke:var(--grid)}.zero{stroke:var(--base);stroke-width:1.5}
+.axis{font-size:11px;fill:var(--mut)}
+.axtitle{font-size:12px;fill:var(--ts);font-weight:600}
+.pt{stroke:var(--page);stroke-width:1.5}
+.ptlab{font-size:10.5px;fill:var(--tp)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--ts);margin:10px 0 0}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;
+ vertical-align:middle;margin-right:6px}
+.note{font-size:11.5px;color:var(--mut);line-height:1.55;margin-top:12px}
+</style></head><body><div class="wrap">
+<h1>Monthly variants: training edge vs test edge</h1>
+<p class="sub">The 12 monthly configurations from the two field charts, one
+point each. Horizontal: edge vs the matched EW benchmark in 1998–2012.
+Vertical: same measure in 2013–2026. All-12 Spearman <b id="rall"></b>
+(mostly the TRIM-vs-hold class gap) · TRIM-only (8 points)
+<b id="rtrim"></b> (threshold transfer inside the operative class).</p>
+<div id="chart"></div>
+<div class="legend">
+<span><span class="dot" style="background:var(--s95)"></span>TRIM s95</span>
+<span><span class="dot" style="background:var(--s99)"></span>TRIM s99</span>
+<span><span class="dot" style="background:var(--hold)"></span>hold (never sell)</span>
+</div>
+<div class="note">The vertical gap between the colored cloud and the grey
+points transfers; the left-to-right order inside the colored cloud does not
+(TRIM-only ρ is slightly negative — training's front-runners b20/s99 and
+b5/s95 landed mid-pack and last among TRIMs out of sample, while b10/s99,
+seventh of eight in training, won the test window). Operate the class;
+don't crown cells.</div>
+</div>
+<script>
+const D = {"pts":[{"l":"b5/s95","x":0.2975,"y":0.016,"c":"95"},{"l":"b5/s99","x":0.246,"y":0.0417,"c":"99"},{"l":"b5/hold","x":0.0454,"y":-0.0682,"c":"hold"},{"l":"b10/s95","x":0.2144,"y":0.0185,"c":"95"},{"l":"b10/s99","x":0.2113,"y":0.1173,"c":"99"},{"l":"b10/hold","x":-0.0222,"y":-0.0193,"c":"hold"},{"l":"b15/s95","x":0.2092,"y":0.0305,"c":"95"},{"l":"b15/s99","x":0.2177,"y":0.0846,"c":"99"},{"l":"b15/hold","x":0.0017,"y":0.0147,"c":"hold"},{"l":"b20/s95","x":0.2734,"y":0.047,"c":"95"},{"l":"b20/s99","x":0.2978,"y":0.0459,"c":"99"},{"l":"b20/hold","x":0.0983,"y":-0.0378,"c":"hold"}],"rall":0.61,"rtrim":-0.14};
+document.getElementById("rall").textContent = "ρ = " + D.rall.toFixed(2);
+document.getElementById("rtrim").textContent = "ρ = " + D.rtrim.toFixed(2);
+const W=940,H=560,ML=64,MR=40,MT=16,MB=52,pw=W-ML-MR,ph=H-MT-MB;
+const xs=D.pts.map(p=>p.x), ys=D.pts.map(p=>p.y);
+const xmin=Math.min(...xs,0)-0.02, xmax=Math.max(...xs)+0.03;
+const ymin=Math.min(...ys)-0.015, ymax=Math.max(...ys)+0.015;
+const X=v=>ML+pw*(v-xmin)/(xmax-xmin), Y=v=>MT+ph*(1-(v-ymin)/(ymax-ymin));
+const CLR={"95":"var(--s95)","99":"var(--s99)","hold":"var(--hold)"};
+let g="";
+for(let k=0;k<=6;k++){const v=xmin+(xmax-xmin)*k/6;
+  g+=`<line class="gridline" x1="${X(v)}" y1="${MT}" x2="${X(v)}" y2="${MT+ph}"/>`;
+  g+=`<text class="axis" x="${X(v)}" y="${H-30}" text-anchor="middle">${(v*100).toFixed(0)}%</text>`;}
+for(let k=0;k<=5;k++){const v=ymin+(ymax-ymin)*k/5;
+  g+=`<line class="gridline" x1="${ML}" y1="${Y(v)}" x2="${ML+pw}" y2="${Y(v)}"/>`;
+  g+=`<text class="axis" x="${ML-8}" y="${Y(v)+4}" text-anchor="end">${(v*100).toFixed(0)}%</text>`;}
+g+=`<line class="zero" x1="${ML}" y1="${Y(0)}" x2="${ML+pw}" y2="${Y(0)}"/>`;
+g+=`<line class="zero" x1="${X(0)}" y1="${MT}" x2="${X(0)}" y2="${MT+ph}"/>`;
+g+=`<text class="axtitle" x="${ML+pw/2}" y="${H-8}" text-anchor="middle">training edge (1998–2012)</text>`;
+g+=`<text class="axtitle" x="16" y="${MT+ph/2}" transform="rotate(-90 16 ${MT+ph/2})" text-anchor="middle">test edge (2013–2026)</text>`;
+// simple label collision nudge on y within x-neighborhoods
+const pts=[...D.pts].sort((a,b)=>Y(a.y)-Y(b.y));
+const placed=[];
+for(const p of pts){
+  const cx=X(p.x), cy=Y(p.y);
+  g+=`<circle class="pt" cx="${cx}" cy="${cy}" r="7" fill="${CLR[p.c]}"><title>${p.l}: train ${(p.x*100).toFixed(1)}%, test ${(p.y*100).toFixed(1)}%</title></circle>`;
+  let ly=cy+4;
+  for(const q of placed){ if(Math.abs(q[0]-(cx+11))<70 && Math.abs(q[1]-ly)<12) ly=q[1]+13; }
+  placed.push([cx+11,ly]);
+  g+=`<text class="ptlab" x="${cx+11}" y="${ly}">${p.l}</text>`;
+}
+document.getElementById("chart").innerHTML=`<svg viewBox="0 0 ${W} ${H}">${g}</svg>`;
+</script></body></html>

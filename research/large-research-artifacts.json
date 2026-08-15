@@ -1,0 +1,88 @@
+{
+  "generated": "2026-08-14",
+  "why": "These are research artifacts too large for the GitHub-hosted repo. Two exceed GitHub's 100MB hard limit and cannot be pushed at all; the rest would bloat every clone. They are NOT deleted and NOT regenerated-on-demand \u2014 they are retained at `archive_root` with the repo-relative shape preserved, and verified by SHA-256 before and after the move.",
+  "archive_root": "D:\\Documents\\Git\\silly-prices-large-artifacts",
+  "verify": "py -3 scripts/verify_large_artifacts.py  (or: certutil -hashfile <path> SHA256)",
+  "total_bytes": 711471714,
+  "total_megabytes": 711.5,
+  "count": 7,
+  "artifacts": [
+    {
+      "path_in_repo": "reports/research/mechb/stage2-authorization-lifetime-ledger.json",
+      "filename": "stage2-authorization-lifetime-ledger.json",
+      "bytes": 368981367,
+      "megabytes": 369.0,
+      "sha256": "ec723d05d7f069f2996a64997d60989ae7932f14401927ea645fbc57d9525648",
+      "sha256_verified_after_move": true,
+      "retained_at": "D:\\Documents\\Git\\silly-prices-large-artifacts\\reports\\research\\mechb\\stage2-authorization-lifetime-ledger.json",
+      "why_retained": "handoff \u00a717: the remaining episode-2+ GOOD-value / BAD-regret attribution is described as cheap post-processing of THIS file. Regenerating it means rerunning the authorization-lifetime campaign.",
+      "exceeds_github_100mb_limit": true
+    },
+    {
+      "path_in_repo": "reports/research/mechb/a-failure-forensics-lots.json",
+      "filename": "a-failure-forensics-lots.json",
+      "bytes": 131420721,
+      "megabytes": 131.4,
+      "sha256": "621d822ab1431ea01e89e82d9848e78f04860052834e023ad7a724e1b9953976",
+      "sha256_verified_after_move": true,
+      "retained_at": "D:\\Documents\\Git\\silly-prices-large-artifacts\\reports\\research\\mechb\\a-failure-forensics-lots.json",
+      "why_retained": "per-lot failure forensics behind the mechanical-A weakness finding (\u00a715.3).",
+      "exceeds_github_100mb_limit": true
+    },
+    {
+      "path_in_repo": "reports/active-vs-reserve-2026-08-13.html",
+      "filename": "active-vs-reserve-2026-08-13.html",
+      "bytes": 57187339,
+      "megabytes": 57.2,
+      "sha256": "6b3ea8c149c1f58055c7f08eae331721d064f83cee7d59a2e0b0f9f3a2754f76",
+      "sha256_verified_after_move": true,
+      "retained_at": "D:\\Documents\\Git\\silly-prices-large-artifacts\\reports\\active-vs-reserve-2026-08-13.html",
+      "why_retained": "rendered dashboard for the active-vs-reserve campaign; regenerable from the JSON.",
+      "exceeds_github_100mb_limit": false
+    },
+    {
+      "path_in_repo": "reports/research/mechb/active-vs-reserve-attribution.json",
+      "filename": "active-vs-reserve-attribution.json",
+      "bytes": 55641431,
+      "megabytes": 55.6,
+      "sha256": "c7f78eaed866ffcca674c54b945b9492917e05cf0600bd7d2c3f6feb0d4dfc60",
+      "sha256_verified_after_move": true,
+      "retained_at": "D:\\Documents\\Git\\silly-prices-large-artifacts\\reports\\research\\mechb\\active-vs-reserve-attribution.json",
+      "why_retained": "attribution behind the active-vs-reserve campaign (\u00a715.3).",
+      "exceeds_github_100mb_limit": false
+    },
+    {
+      "path_in_repo": "reports/a-structural-experiments-2026-08-13.html",
+      "filename": "a-structural-experiments-2026-08-13.html",
+      "bytes": 37326860,
+      "megabytes": 37.3,
+      "sha256": "638bd6bd300245001a34e3312d8201578cc6e906a397e7d42d533a8c7e89495b",
+      "sha256_verified_after_move": true,
+      "retained_at": "D:\\Documents\\Git\\silly-prices-large-artifacts\\reports\\a-structural-experiments-2026-08-13.html",
+      "why_retained": "rendered dashboard for the structural experiments; regenerable from the JSON.",
+      "exceeds_github_100mb_limit": false
+    },
+    {
+      "path_in_repo": "reports/research/mechb/a-structural-attribution.json",
+      "filename": "a-structural-attribution.json",
+      "bytes": 32693699,
+      "megabytes": 32.7,
+      "sha256": "066363ff98f6d6b201292176b0c743e4e27f190d3faa3d6024435b44792d6c21",
+      "sha256_verified_after_move": true,
+      "retained_at": "D:\\Documents\\Git\\silly-prices-large-artifacts\\reports\\research\\mechb\\a-structural-attribution.json",
+      "why_retained": "attribution behind the structural campaign (\u00a715.3).",
+      "exceeds_github_100mb_limit": false
+    },
+    {
+      "path_in_repo": "reports/research/mechb/a-structural-treatment-checkpoint.json",
+      "filename": "a-structural-treatment-checkpoint.json",
+      "bytes": 28220297,
+      "megabytes": 28.2,
+      "sha256": "ce39b038b98409de0f38c9358870032af19680f7b936de69016fe4caa59ac839",
+      "sha256_verified_after_move": true,
+      "retained_at": "D:\\Documents\\Git\\silly-prices-large-artifacts\\reports\\research\\mechb\\a-structural-treatment-checkpoint.json",
+      "why_retained": "treatment-arm checkpoint for the structural campaign; needed to resume or audit it.",
+      "exceeds_github_100mb_limit": false
+    }
+  ]
+}

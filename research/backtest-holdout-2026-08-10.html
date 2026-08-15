@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Holdout: does the backtest winner survive out of sample?</title>
+<style>
+:root{color-scheme:light;
+ --page:#faf9f5;--tp:#0b0b0b;--ts:#57564f;--mut:#7d7c74;
+ --grid:#e1e0d9;--base:#c3c2b7;--border:rgba(11,11,11,.10);
+ --s1:#c96442;--s2:#5a7d9a;--s3:#8a8778;--good:#3e7d54;--bad:#a04432;
+ --hl:rgba(201,100,66,.14)}
+@media (prefers-color-scheme:dark){:root{color-scheme:dark;
+ --page:#262624;--tp:#f5f4ee;--ts:#b8b6ac;--mut:#8f8d83;
+ --grid:#2c2c2a;--base:#383835;--border:rgba(255,255,255,.10);
+ --good:#7fb894;--bad:#d98b74;--hl:rgba(201,100,66,.22)}}
+body{margin:0;font:14px/1.5 ui-sans-serif,system-ui,sans-serif;
+ background:var(--page);color:var(--tp);-webkit-font-smoothing:antialiased}
+.wrap{max-width:980px;margin:0 auto;padding:32px 20px 60px}
+h1{font-size:19px;font-weight:700;margin:0 0 4px}
+.sub{font-size:12.5px;color:var(--ts);margin:0 0 14px}
+svg{width:100%;height:auto;display:block}
+.gridline{stroke:var(--grid)}.zero{stroke:var(--base);stroke-width:1.5}
+.axis{font-size:11px;fill:var(--mut)}
+.axtitle{font-size:12px;fill:var(--ts);font-weight:600}
+.pt{stroke:var(--page);stroke-width:1.5}
+.ptlab{font-size:10px;fill:var(--tp)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--ts);margin:10px 0 0}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;
+ vertical-align:middle;margin-right:6px}
+.note{font-size:11.5px;color:var(--mut);line-height:1.55;margin-top:12px}
+</style></head><body><div class="wrap">
+<h1>The holdout: pick on 1998–2012, judge on 2013–2026</h1>
+<p class="sub">Each point is one configuration. Horizontal: edge over the
+cadence-matched equal-weight benchmark in the <b>training window</b>.
+Vertical: the same measure in the <b>test window</b>, evaluated once, no
+re-tuning. If threshold tuning worked, points would climb from left to
+right. Spearman rank correlation: <b id="rho"></b>.</p>
+<div id="chart"></div>
+<div class="legend">
+<span><span class="dot" style="background:var(--s2)"></span>annual · TRIM</span>
+<span><span class="dot" style="background:var(--s1)"></span>monthly $1,667 · TRIM</span>
+<span><span class="dot" style="background:var(--s3)"></span>hold (never sell)</span>
+<span>◆ training winner</span><span>▲ preferred plan's best cell</span><span>● live config (ring)</span>
+</div>
+<div class="note">What transfers is the <b>vertical separation of colors</b>,
+not the left-to-right order: every monthly-TRIM config (orange) stayed
+positive out of sample; every hold config (grey) sank to the bottom; annual
+TRIM (blue) scattered. Meanwhile the training winner (◆ b5/s99/annual,
+best-looking cell of the whole campaign at +32.5%) landed at −4.3%, rank
+16 of 24. Classes carry signal; point optima are curve-fitting. Note also
+the vertical scale: the test window (a dislocation-poor regime) offered
+roughly a third of the training window's edge to anyone.</div>
+</div>
+<script>
+const D = {"pts":[{"l":"b5/s95/annual","x":0.3014,"y":-0.0467,"c":"antrim","mark":"live"},{"l":"b5/s95/monthly","x":0.2975,"y":0.016,"c":"motrim","mark":""},{"l":"b5/s99/annual","x":0.3252,"y":-0.043,"c":"antrim","mark":"winner"},{"l":"b5/s99/monthly","x":0.246,"y":0.0417,"c":"motrim","mark":""},{"l":"b5/hold/annual","x":0.1638,"y":-0.0768,"c":"hold","mark":""},{"l":"b5/hold/monthly","x":0.0454,"y":-0.0682,"c":"hold","mark":""},{"l":"b10/s95/annual","x":0.223,"y":-0.0967,"c":"antrim","mark":""},{"l":"b10/s95/monthly","x":0.2144,"y":0.0185,"c":"motrim","mark":""},{"l":"b10/s99/annual","x":0.2393,"y":-0.0967,"c":"antrim","mark":""},{"l":"b10/s99/monthly","x":0.2113,"y":0.1173,"c":"motrim","mark":""},{"l":"b10/hold/annual","x":0.1498,"y":-0.1424,"c":"hold","mark":""},{"l":"b10/hold/monthly","x":-0.0222,"y":-0.0193,"c":"hold","mark":""},{"l":"b15/s95/annual","x":0.2207,"y":0.0429,"c":"antrim","mark":""},{"l":"b15/s95/monthly","x":0.2092,"y":0.0305,"c":"motrim","mark":""},{"l":"b15/s99/annual","x":0.2254,"y":0.0072,"c":"antrim","mark":""},{"l":"b15/s99/monthly","x":0.2177,"y":0.0846,"c":"motrim","mark":""},{"l":"b15/hold/annual","x":0.1432,"y":-0.0465,"c":"hold","mark":""},{"l":"b15/hold/monthly","x":0.0017,"y":0.0147,"c":"hold","mark":""},{"l":"b20/s95/annual","x":0.2265,"y":0.0376,"c":"antrim","mark":""},{"l":"b20/s95/monthly","x":0.2734,"y":0.047,"c":"motrim","mark":""},{"l":"b20/s99/annual","x":0.2669,"y":-0.0378,"c":"antrim","mark":""},{"l":"b20/s99/monthly","x":0.2978,"y":0.0459,"c":"motrim","mark":"pref"},{"l":"b20/hold/annual","x":0.156,"y":-0.0734,"c":"hold","mark":""},{"l":"b20/hold/monthly","x":0.0983,"y":-0.0378,"c":"hold","mark":""}],"rho":0.23};
+document.getElementById("rho").textContent = "ρ = " + D.rho.toFixed(2);
+const W=940,H=560,ML=64,MR=30,MT=16,MB=52,pw=W-ML-MR,ph=H-MT-MB;
+const xs=D.pts.map(p=>p.x), ys=D.pts.map(p=>p.y);
+const xmin=Math.min(...xs,0)-0.02, xmax=Math.max(...xs)+0.02;
+const ymin=Math.min(...ys)-0.02, ymax=Math.max(...ys)+0.02;
+const X=v=>ML+pw*(v-xmin)/(xmax-xmin), Y=v=>MT+ph*(1-(v-ymin)/(ymax-ymin));
+const CLR={antrim:"var(--s2)",motrim:"var(--s1)",hold:"var(--s3)"};
+let g="";
+for(let k=0;k<=6;k++){
+  const v=xmin+(xmax-xmin)*k/6;
+  g+=`<line class="gridline" x1="${X(v)}" y1="${MT}" x2="${X(v)}" y2="${MT+ph}"/>`;
+  g+=`<text class="axis" x="${X(v)}" y="${H-30}" text-anchor="middle">${(v*100).toFixed(0)}%</text>`;
+}
+for(let k=0;k<=5;k++){
+  const v=ymin+(ymax-ymin)*k/5;
+  g+=`<line class="gridline" x1="${ML}" y1="${Y(v)}" x2="${ML+pw}" y2="${Y(v)}"/>`;
+  g+=`<text class="axis" x="${ML-8}" y="${Y(v)+4}" text-anchor="end">${(v*100).toFixed(0)}%</text>`;
+}
+g+=`<line class="zero" x1="${ML}" y1="${Y(0)}" x2="${ML+pw}" y2="${Y(0)}"/>`;
+g+=`<line class="zero" x1="${X(0)}" y1="${MT}" x2="${X(0)}" y2="${MT+ph}"/>`;
+g+=`<text class="axtitle" x="${ML+pw/2}" y="${H-8}" text-anchor="middle">training edge (1998–2012)</text>`;
+g+=`<text class="axtitle" x="16" y="${MT+ph/2}" transform="rotate(-90 16 ${MT+ph/2})" text-anchor="middle">test edge (2013–2026)</text>`;
+for(const p of D.pts){
+  const cx=X(p.x), cy=Y(p.y), c=CLR[p.c];
+  if(p.mark==="winner"){
+    g+=`<path class="pt" d="M ${cx} ${cy-8} L ${cx+8} ${cy} L ${cx} ${cy+8} L ${cx-8} ${cy} Z" fill="${c}"><title>${p.l}: train ${(p.x*100).toFixed(1)}%, test ${(p.y*100).toFixed(1)}%</title></path>`;
+    g+=`<text class="ptlab" x="${cx+11}" y="${cy+4}">training winner ${p.l}</text>`;
+  }else if(p.mark==="pref"){
+    g+=`<path class="pt" d="M ${cx} ${cy-9} L ${cx+8} ${cy+6} L ${cx-8} ${cy+6} Z" fill="${c}"><title>${p.l}: train ${(p.x*100).toFixed(1)}%, test ${(p.y*100).toFixed(1)}%</title></path>`;
+    g+=`<text class="ptlab" x="${cx+11}" y="${cy+4}">${p.l}</text>`;
+  }else if(p.mark==="live"){
+    g+=`<circle class="pt" cx="${cx}" cy="${cy}" r="6" fill="${c}"/><circle cx="${cx}" cy="${cy}" r="10" fill="none" stroke="${c}" stroke-width="1.5"><title>${p.l}</title></circle>`;
+    g+=`<text class="ptlab" x="${cx+13}" y="${cy+4}">live ${p.l}</text>`;
+  }else{
+    g+=`<circle class="pt" cx="${cx}" cy="${cy}" r="6" fill="${c}"><title>${p.l}: train ${(p.x*100).toFixed(1)}%, test ${(p.y*100).toFixed(1)}%</title></circle>`;
+  }
+}
+document.getElementById("chart").innerHTML=`<svg viewBox="0 0 ${W} ${H}">${g}</svg>`;
+</script></body></html>

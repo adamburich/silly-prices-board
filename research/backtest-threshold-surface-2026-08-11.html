@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Threshold sensitivity — plateau or peak?</title>
+<style>
+:root{color-scheme:light;
+ --page:#faf9f5;--surface:#fcfcfb;--tp:#0b0b0b;--ts:#52514e;--mut:#7d7c74;
+ --grid:#e1e0d9;--base:#c3c2b7;--border:rgba(11,11,11,.10);
+ --s95:#2a78d6;--s97:#1baf7a;--s99:#eb6834;
+ --good:#0ca30c;--bad:#a04432;--ring:rgba(42,120,214,.18)}
+@media (prefers-color-scheme:dark){:root{color-scheme:dark;
+ --page:#262624;--surface:#1a1a19;--tp:#f5f4ee;--ts:#c3c2b7;--mut:#8f8d83;
+ --grid:#2c2c2a;--base:#383835;--border:rgba(255,255,255,.10);
+ --s95:#3987e5;--s97:#199e70;--s99:#d95926;
+ --good:#7fb894;--bad:#d98b74;--ring:rgba(57,135,229,.26)}}
+body{margin:0;font:14px/1.55 ui-sans-serif,system-ui,sans-serif;
+ background:var(--page);color:var(--tp);-webkit-font-smoothing:antialiased}
+.wrap{max-width:1000px;margin:0 auto;padding:32px 20px 64px}
+h1{font-size:19px;font-weight:700;margin:0 0 4px}
+h2{font-size:14px;font-weight:700;margin:26px 0 6px}
+.sub{font-size:12.5px;color:var(--ts);margin:0 0 16px;max-width:76ch}
+svg{width:100%;height:auto;display:block}
+.gridline{stroke:var(--grid)}
+.zero{stroke:var(--base);stroke-width:2}
+.axis{font-size:11px;fill:var(--mut)}
+.axtitle{font-size:12px;fill:var(--ts);font-weight:600}
+.ln{fill:none;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.pt{stroke:var(--surface);stroke-width:2}
+.endlab{font-size:11px;font-weight:600;fill:var(--tp)}
+.oplab{font-size:11px;fill:var(--tp)}
+.legend{display:flex;gap:18px;flex-wrap:wrap;font-size:12.5px;color:var(--ts);
+ margin:12px 0 0;align-items:center}
+.key{display:inline-block;width:16px;height:0;border-top:3px solid;
+ vertical-align:middle;margin-right:6px;border-radius:2px}
+table{border-collapse:collapse;margin-top:8px;font-variant-numeric:tabular-nums;
+ width:100%}
+th,td{padding:5px 10px;border-bottom:1px solid var(--grid);text-align:right;
+ font-size:12.5px}
+td:first-child,th:first-child{text-align:left}
+th{color:var(--ts);font-weight:600}
+tr.op td{background:var(--ring);font-weight:700}
+.pos{color:var(--good)}
+.note{font-size:12px;color:var(--mut);line-height:1.6;margin-top:14px;
+ max-width:80ch}
+.verdict{border:1px solid var(--border);border-radius:8px;padding:14px 16px;
+ margin-top:20px;background:var(--surface)}
+.verdict b{color:var(--tp)}
+#tip{position:fixed;pointer-events:none;opacity:0;transition:opacity .1s;
+ background:var(--surface);border:1px solid var(--border);border-radius:6px;
+ padding:6px 9px;font-size:12px;box-shadow:0 2px 10px rgba(0,0,0,.14);
+ color:var(--tp);z-index:9}
+</style></head><body><div class="wrap">
+<h1>Threshold sensitivity — is the operating point on a plateau or a peak?</h1>
+<p class="sub">Every cell: the same funnel over <b>1998–2019</b>, monthly
+$20k/yr, full-month lots, cap 3, unparked — only the buy and sell percentiles
+change. Vertical axis is the finish against a benchmark receiving the
+<i>identical</i> monthly cashflows. The pre-registered question was never
+"which cell wins" (the holdout showed within-class rank does not transfer,
+ρ&nbsp;=&nbsp;−0.14) but whether any cell falls off a cliff.</p>
+<div id="chart"></div>
+<div class="legend">
+<span><span class="key" style="border-top-color:var(--s95)"></span>TRIM s95 <span style="color:var(--mut)">(least rare)</span></span>
+<span><span class="key" style="border-top-color:var(--s97)"></span>TRIM s97</span>
+<span><span class="key" style="border-top-color:var(--s99)"></span>TRIM s99 <span style="color:var(--mut)">(rarest)</span></span>
+<span style="color:var(--mut)">◎ live operating point</span>
+</div>
+<h2>Every cell</h2>
+<div id="table"></div>
+<div class="verdict" id="verdict"></div>
+<div class="note">Buy percentile is the depth of the entry: b3 buys only when a
+name sits in the cheapest 3% of its own valuation history, b20 in the cheapest
+20%. Fill counts rise with shallower entry — that is the surface's tilt showing
+its mechanism. Entry depth is a <i>capacity</i> dial, not a selection dial.</div>
+</div>
+<div id="tip"></div>
+<script>
+const D = {"series":[{"s":95,"pts":[{"b":3,"e":0.0902,"f":1703357,"n":375,"t":29},{"b":5,"e":0.1115,"f":1736624,"n":443,"t":30},{"b":10,"e":0.1086,"f":1732128,"n":527,"t":34},{"b":15,"e":0.1686,"f":1825949,"n":539,"t":37},{"b":20,"e":0.2199,"f":1906074,"n":536,"t":37}]},{"s":97,"pts":[{"b":3,"e":0.1837,"f":1849481,"n":374,"t":26},{"b":5,"e":0.2047,"f":1882335,"n":440,"t":26},{"b":10,"e":0.2484,"f":1950498,"n":527,"t":29},{"b":15,"e":0.2562,"f":1962698,"n":576,"t":34},{"b":20,"e":0.2878,"f":2012135,"n":579,"t":32}]},{"s":99,"pts":[{"b":3,"e":0.2348,"f":1929296,"n":350,"t":19},{"b":5,"e":0.1799,"f":1843576,"n":378,"t":20},{"b":10,"e":0.2192,"f":1904892,"n":396,"t":20},{"b":15,"e":0.2326,"f":1925916,"n":417,"t":25},{"b":20,"e":0.291,"f":2017114,"n":421,"t":25}]}],"table":[{"b":3,"s":95,"e":0.0902,"f":1703357,"n":375,"t":29},{"b":5,"s":95,"e":0.1115,"f":1736624,"n":443,"t":30},{"b":10,"s":95,"e":0.1086,"f":1732128,"n":527,"t":34},{"b":15,"s":95,"e":0.1686,"f":1825949,"n":539,"t":37},{"b":20,"s":95,"e":0.2199,"f":1906074,"n":536,"t":37},{"b":3,"s":97,"e":0.1837,"f":1849481,"n":374,"t":26},{"b":5,"s":97,"e":0.2047,"f":1882335,"n":440,"t":26},{"b":10,"s":97,"e":0.2484,"f":1950498,"n":527,"t":29},{"b":15,"s":97,"e":0.2562,"f":1962698,"n":576,"t":34},{"b":20,"s":97,"e":0.2878,"f":2012135,"n":579,"t":32},{"b":3,"s":99,"e":0.2348,"f":1929296,"n":350,"t":19},{"b":5,"s":99,"e":0.1799,"f":1843576,"n":378,"t":20},{"b":10,"s":99,"e":0.2192,"f":1904892,"n":396,"t":20},{"b":15,"s":99,"e":0.2326,"f":1925916,"n":417,"t":25},{"b":20,"s":99,"e":0.291,"f":2017114,"n":421,"t":25}],"ew":1562449,"npos":15,"n":15,"lo":0.0902,"hi":0.291,"mean":0.2025};
+const BUYS = [3,5,10,15,20], CLR = {95:"var(--s95)",97:"var(--s97)",99:"var(--s99)"};
+const W=980,H=470,ML=58,MR=64,MT=18,MB=48,pw=W-ML-MR,ph=H-MT-MB;
+const ymin=0, ymax=Math.max(...D.table.map(r=>r.e))*1.12;
+const X=b=>ML+pw*(b-BUYS[0])/(BUYS[BUYS.length-1]-BUYS[0]);
+const Y=v=>MT+ph*(1-(v-ymin)/(ymax-ymin));
+let g="";
+for(let k=0;k<=6;k++){const v=ymin+(ymax-ymin)*k/6;
+  g+=`<line class="${k?'gridline':'zero'}" x1="${ML}" y1="${Y(v)}" x2="${ML+pw}" y2="${Y(v)}"/>`;
+  g+=`<text class="axis" x="${ML-8}" y="${Y(v)+4}" text-anchor="end">${(v*100).toFixed(0)}%</text>`;}
+for(const b of BUYS){
+  g+=`<line class="gridline" x1="${X(b)}" y1="${MT}" x2="${X(b)}" y2="${MT+ph}"/>`;
+  g+=`<text class="axis" x="${X(b)}" y="${H-28}" text-anchor="middle">b${b}</text>`;}
+g+=`<text class="axtitle" x="${ML+pw/2}" y="${H-8}" text-anchor="middle">buy percentile — how deep the entry must be (shallower →)</text>`;
+g+=`<text class="axtitle" x="15" y="${MT+ph/2}" transform="rotate(-90 15 ${MT+ph/2})" text-anchor="middle">finish vs matched benchmark</text>`;
+g+=`<text class="axis" x="${ML+6}" y="${Y(0)-7}">parity with the market — no cell is below this line</text>`;
+const ends=[];
+for(const s of D.series){
+  const pts=s.pts.map(p=>`${X(p.b).toFixed(1)},${Y(p.e).toFixed(1)}`).join(" ");
+  g+=`<polyline class="ln" stroke="${CLR[s.s]}" points="${pts}"/>`;
+  const last=s.pts[s.pts.length-1];
+  ends.push({s:s.s, x:X(last.b)+11, y:Y(last.e)+4, c:CLR[s.s]});
+}
+// end labels can sit a few px apart (s97/s99 finish within 0.3pp) — spread them
+ends.sort((a,b)=>a.y-b.y);
+for(let i=1;i<ends.length;i++)
+  if(ends[i].y-ends[i-1].y<14) ends[i].y=ends[i-1].y+14;
+for(const e of ends)
+  g+=`<text class="endlab" x="${e.x}" y="${e.y}" fill="${e.c}">s${e.s}</text>`;
+for(const s of D.series) for(const p of s.pts){
+  const op = (p.b===5 && s.s===95);
+  if(op) g+=`<circle cx="${X(p.b)}" cy="${Y(p.e)}" r="13" fill="none" stroke="${CLR[s.s]}" stroke-width="2"/>`;
+  g+=`<circle class="pt" cx="${X(p.b)}" cy="${Y(p.e)}" r="6" fill="${CLR[s.s]}"`+
+     ` data-t="b${p.b}/s${s.s} — ${(p.e*100).toFixed(1)}% vs benchmark · $${p.f.toLocaleString()} · ${p.n} fills · ${p.t} trims"/>`;
+  if(op) g+=`<text class="oplab" x="${X(p.b)}" y="${Y(p.e)+30}" text-anchor="middle">live b5/s95</text>`;
+}
+document.getElementById("chart").innerHTML=`<svg viewBox="0 0 ${W} ${H}">${g}</svg>`;
+
+let t='<table><tr><th>buy</th><th>sell</th><th>final</th><th>vs benchmark</th>'+
+      '<th>fills</th><th>trims</th></tr>';
+for(const r of D.table.slice().sort((a,b)=>a.b-b.b||a.s-b.s))
+  t+=`<tr class="${r.b===5&&r.s===95?'op':''}"><td>b${r.b}</td><td>s${r.s}</td>`+
+     `<td>$${r.f.toLocaleString()}</td><td class="pos">+${(r.e*100).toFixed(1)}%</td>`+
+     `<td>${r.n}</td><td>${r.t}</td></tr>`;
+t+=`<tr><td colspan="2"><b>benchmark</b></td><td><b>$${D.ew.toLocaleString()}</b></td>`+
+   `<td colspan="3" style="text-align:left;color:var(--mut)">equal-weight, identical monthly cashflows</td></tr>`;
+document.getElementById("table").innerHTML=t+'</table>';
+
+document.getElementById("verdict").innerHTML =
+ `<b>Verdict: not fragile — but the surface is tilted, not flat.</b><br>` +
+ `All <b>${D.npos} of ${D.n}</b> cells finish above the benchmark ` +
+ `(range +${(D.lo*100).toFixed(1)}% to +${(D.hi*100).toFixed(1)}%, mean ` +
+ `+${(D.mean*100).toFixed(1)}%). No cliff exists anywhere in the neighbourhood, ` +
+ `so the strategy does not depend on having guessed a threshold — that was the ` +
+ `question. But the live point sits low on a consistent gradient, and the ` +
+ `pre-registered rule permits only <i>stay</i> or <i>distrust</i>, never ` +
+ `relocation to the winning cell. Two reasons that still holds: the gradient ` +
+ `tracks fill count, so it is deployment capacity rather than better selection; ` +
+ `and b20/s99 topping a training window is the exact pattern that already ` +
+ `failed out of sample once.`;
+
+const tip=document.getElementById("tip");
+document.addEventListener("mouseover",e=>{const d=e.target.dataset&&e.target.dataset.t;
+  if(!d)return; tip.textContent=d; tip.style.opacity=1;});
+document.addEventListener("mousemove",e=>{
+  tip.style.left=(e.clientX+14)+"px"; tip.style.top=(e.clientY-10)+"px";});
+document.addEventListener("mouseout",e=>{if(e.target.dataset&&e.target.dataset.t)tip.style.opacity=0;});
+</script></body></html>
