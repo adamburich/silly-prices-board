@@ -38,7 +38,7 @@ executing, not of the rule being read.
 | Precedence | `SELL-REVIEW > REVIEW > TRIM > HOLD` (a suppression chain) | no chain; every condition that holds is emitted |
 | Authorization | none — a human was assumed | `valuation_exit OR current_valid_stage5b_sell` |
 | Thesis / disqualifier warnings | terminal review states | Stage 5B: LLM thesis-intact diagnosis |
-| Execution | none | `paper-routine`, full liquidation, 56-day per-name cooldown |
+| Execution | none | `paper-routine`, full liquidation, 56-day cooldown per (name, exit reason) |
 | `AUTOMATIC_EXECUTION_AUTHORIZED` | `False` | `True` (governs the **valuation** exit only) |
 
 ## The two substantive decisions
@@ -135,9 +135,11 @@ toward *no new exposure*, exit fails toward *no sale*. Both are "do nothing
 new", stated from opposite sides. `test_exit_paths_unblocked` documents this so
 a future reader does not "fix" one to match the other.
 
-An authorization must also be **current**: a `sell` verdict expires after
-`[stage5].requeue_days` (1), because liquidating days later on evidence that has
-moved is not the decision that was made.
+An authorization must also be **current**, but "current" is a lifecycle rather
+than a clock: a `sell` stands until the position is liquidated, a newer verdict
+supersedes it, or its evidence snapshot is invalidated. *(As first written this
+was a 1-day expiry, which was an invented value and a defect — corrected the same
+day; see the follow-up record.)*
 
 ## Audit record
 
@@ -154,6 +156,22 @@ hash would make two different decisions look reproducible from one set of
 instructions. Errors are logged to `_errors.jsonl` but never written to the
 verdict cache — a cached error would be served as the current verdict and mask a
 later good run.
+
+## Corrected the same day
+
+Two timing values in this change were wrong and are fixed in
+[stage5-authorization-lifecycle-2026-08-15.md](stage5-authorization-lifecycle-2026-08-15.md):
+
+- **56-day cooldown keying.** The value is inherited from the harness and stays;
+  the *keying* regressed. The harness ran one clock per (name, REASON); db225b7
+  used one per (account, ticker), so a valuation exit silently suppressed a later
+  Stage-5B exit on the same name. Restored to (account, ticker, reason).
+- **The 1-day `sell` expiry was invented, and broken.** `paper-routine` is the
+  only executor and runs weekly, so a `sell` recorded on any day but the Monday
+  of a run expired before anything could act on it — Stage 5B's sell path was
+  dead six days in seven, silently. Replaced with a lifecycle (consumed by the
+  liquidation / superseded / evidence-invalidated / holding gone), not another
+  number. An operational failure consumes nothing.
 
 ## Known limits
 
