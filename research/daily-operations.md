@@ -7,14 +7,40 @@ port baseline, this changes as the operating loop does. Last audited 2026-08-15.
 
 | routine | where | schedule | trades? | last verified |
 |---|---|---|---|---|
-| **Stage-2 diagnosis** | cloud routine `trig_016ELzzftkdu6m136QT5BQ37` | daily 07:00 UTC | no | created 2026-08-15; first fire 2026-08-16 |
-| **Paper routines** | `paper-routines.yml` | Mondays 21:30 UTC | **YES** | first scheduled fire 2026-08-17 |
+| **Stage-2 + Stage-5B diagnosis** | cloud routine `trig_016ELzzftkdu6m136QT5BQ37` | daily 07:00 UTC | no | verified live 2026-08-15 20:41 UTC (`enabled`, next fire 2026-08-16 07:05 UTC); never fired yet |
+| **Paper routines** — *also executes Stage-5 exits* | `paper-routines.yml` | Mondays 21:30 UTC | **YES** | first scheduled fire 2026-08-17 |
 | **Publish board** | `publish-board.yml` | daily 22:30 UTC + push | no | 8/8 scheduled runs green |
 | **Invariants** | `invariants.yml` | every push | no | green, ~18s |
 | **Publish STAGING** | `publish-staging.yml` | push to `stage5-review` | no | dormant since 2026-08-06 |
 
 `paper-routines.yml` landed 2026-08-12 (a Wednesday), so **no Monday has passed
 yet** — "never ran on schedule" is expected, not a fault.
+
+## The two halves of Stage 5, on two schedules
+
+Stage 5 is split across both routines, and the split is why a Stage-5B `sell`
+authorization has no calendar expiry (see
+[stage5-authorization-lifecycle-2026-08-15.md](stage5-authorization-lifecycle-2026-08-15.md)):
+
+| | produces | executes |
+|---|---|---|
+| daily 07:00 UTC | Stage-5B verdicts (`stage5-record` / `stage5-error`) | nothing — the routine never trades |
+| Mondays 21:30 UTC | — | `run_stage5_exits`, before the entry ladder |
+
+The decider runs daily and the executor weekly, so an authorization has to
+survive up to a week of waiting. `python -m sillyprices review` is the read-only
+Stage-5A report and is **not scheduled** — the Monday job recomputes conditions
+from fresh rows rather than reading anything `review` wrote, so a stale report
+can never cause a trade.
+
+**Routine prompt drift, found and fixed 2026-08-15.** The cloud routine's inline
+notes were keyed to step *numbers* in `.claude/commands/stage2.md`, and inserting
+Stage 5B as step 6 desynced all of them: its "step 7: SKIP IT" landed on
+"rebuild the board" and its "step 8: commit and push" landed on the trading step.
+It also never mentioned Stage 5B at all, and its `git add` omitted
+`data/exit-diagnosis` and `theses/exit`, so any exit verdict it produced would
+have been left uncommitted and lost on the next fresh checkout. The prompt is now
+keyed to step **names**, which cannot desync on a renumber.
 
 ## One writer on the ledger
 
