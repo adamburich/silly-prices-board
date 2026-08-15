@@ -428,7 +428,7 @@ footer .prose{display:flex; flex-direction:column; gap:9px}
 <main>
 
 <!-- ========================= HERO ========================= -->
-<div class="note warn" style="margin:0 0 22px"><span class="hd">Published copy</span>This is the public copy of an explorer that lives in a private repository. <b>71 of 74 linked artifacts are published here.</b> 1 are withheld because they carry live position data or raw operational traces, and appear below as dashed rows rather than broken links. Board links point at the <a href="https://adamburich.github.io/silly-prices-board/">live board</a>, which is always current. Everything quantitative on this page is unchanged.</div><div class="hero">
+<div class="note warn" style="margin:0 0 22px"><span class="hd">Published copy</span>This is the public copy of an explorer that lives in a private repository. <b>68 of 71 linked artifacts are published here.</b> 1 are withheld because they carry live position data or raw operational traces, and appear below as dashed rows rather than broken links. Board links point at the <a href="https://adamburich.github.io/silly-prices-board/">live board</a>, which is always current. Everything quantitative on this page is unchanged.</div><div class="hero">
   <div class="wrap">
     <h1>Silly Prices Research&nbsp;Explorer</h1>
     <p class="tagline">A record of what we tested, what survived, what failed, and how those results shaped the investment system.</p>
@@ -501,12 +501,9 @@ footer .prose{display:flex; flex-direction:column; gap:9px}
       <article class="concl">
         <div class="num">CONCLUSION 6</div>
         <h3>The largest remaining unknown is prospective judgment quality</h3>
-        <p>Historical testing tells us how good the decision layer needs to be. It does not prove the live model achieves that skill. Production logging can now reconstruct decisions exactly — but <strong>no verdict has yet reached a readable horizon.</strong></p>
-        <div class="metrics">
-          <div class="mt"><span class="v">122</span><span class="l">verdicts scored</span></div>
-          <div class="mt"><span class="v">0</span><span class="l">that have reached even the 30-day horizon</span></div>
-        </div>
-        <div class="ev"><b>Monitors</b> <a href="#h1">H1 Graveyard</a> · <a href="#g5">G5 Logging smoke test</a> · <a href="#g6">G6 Port audit</a></div>
+        <p>Historical testing tells us how good the decision layer needs to be. <strong>It does not prove the live model achieves that skill, and nothing on this page does.</strong> The campaign established that in calm regimes the mechanical funnel runs at roughly market parity, so most of the claimed value has to come from Stage-2 judgment — which makes this the one measurement that could confirm or refute the system's central premise, and the one that cannot be hurried.</p>
+        <p>The machinery to answer it exists: decisions are logged in full and can be reconstructed from the record alone. <strong>The evidence itself does not — it requires running forward and waiting.</strong></p>
+        <div class="ev"><b>What is in place</b> <a href="#g5">G5 Logging smoke test</a> · <a href="#g6">G6 Port audit</a></div>
       </article>
 
     </div>
@@ -519,27 +516,17 @@ footer .prose{display:flex; flex-direction:column; gap:9px}
     <div class="band-head">
       <div class="eyebrow">Live / system status</div>
       <h2 class="bandtitle">Where the system stands today</h2>
-      <p class="lede">Derived from the newest committed artifacts, not hardcoded. Two of these numbers disagree with the frozen baseline on purpose — see the notes.</p>
+      <p class="lede">Read from the committed repository at publish time, not hardcoded. These describe the implementation, not investment performance — the two are kept apart throughout this page.</p>
     </div>
 
     <div class="statusgrid">
-      <div class="stat">
-        <span class="v">122</span>
-        <span class="l">Stage-2 verdicts evaluated</span>
-        <span class="src">graveyard-2026-08-15.json</span>
-      </div>
-      <div class="stat">
-        <span class="v" style="color:var(--warn)">0</span>
-        <span class="l">verdicts past the 30-day horizon — the prospective cohort is not yet readable</span>
-        <span class="src">graveyard-2026-08-15.md</span>
-      </div>
       <div class="stat">
         <span class="v" style="color:var(--ok)">21 / 21</span>
         <span class="l">production invariants passing</span>
         <span class="src">production-port-audit.md</span>
       </div>
       <div class="stat">
-        <span class="v" data-live="testcount">265</span>
+        <span class="v" data-live="testcount">281</span>
         <span class="l">software tests currently collected <span class="research-only">(200 at the frozen port baseline)</span></span>
         <span class="src">unittest discovery, read at publish time</span>
       </div>
@@ -548,16 +535,11 @@ footer .prose{display:flex; flex-direction:column; gap:9px}
         <span class="l">CI — no network, no private submodule, ~18s</span>
         <span class="src">.github/workflows/invariants.yml</span>
       </div>
-      <div class="stat">
-        <span class="v">2026-10-24</span>
-        <span class="l">earliest date the first readable horizon (90-day) can be reached</span>
-        <span class="src">graveyard-2026-08-15.md</span>
-      </div>
     </div>
 
     <div class="note" style="margin-top:18px">
       <span class="hd">Reading these honestly</span>
-      The test count moved from <b>200</b> at the frozen port baseline to <span data-live="testcount">265</span> today because the suite kept growing after the baseline was tagged — most recently when the Stage-5 autonomy change replaced <code>test_trim.py</code> and added <code>test_stage5_authorization.py</code>. The audit number is frozen by design; the live number is read at publish time and is not. And the graveyard's 122 verdicts are a <b>sample-size</b> figure, not a result: the oldest verdict is 20 days old, so every horizon column is still empty.
+      The test count moved from <b>200</b> at the frozen port baseline to <span data-live="testcount">281</span> today because the suite kept growing after the baseline was tagged — most recently when the Stage-5 autonomy change replaced <code>test_trim.py</code> and added <code>test_stage5_authorization.py</code>. The audit number is frozen by design; the live number is read at publish time and is not. <b>None of these three is evidence that the strategy works</b> — they are evidence that the code does what the research decided.
     </div>
   </div>
 </section>
@@ -1284,7 +1266,7 @@ footer .prose{display:flex; flex-direction:column; gap:9px}
 
         <div class="whymatters">
           <b>Why it matters</b>
-          This is why the project measures Stage 2 <em>prospectively</em> (H1, the graveyard) rather than by replaying history blind. A retrospective blind test is not available: the evidence packet identifies the company to any competent reader even after redaction. One leak is worth recording as a lesson in redaction generally — relativizing years <b>inverted</b> the redaction, because "Securities Exchange Act of [YEAR+85]" lets a reader who knows the Exchange Act is 1934 solve straight back to the real date.
+          This is why the project measures Stage 2 <em>prospectively</em> rather than by replaying history blind. A retrospective blind test is not available: the evidence packet identifies the company to any competent reader even after redaction. One leak is worth recording as a lesson in redaction generally — relativizing years <b>inverted</b> the redaction, because "Securities Exchange Act of [YEAR+85]" lets a reader who knows the Exchange Act is 1934 solve straight back to the real date.
         </div>
 
         <div class="limits">
@@ -2039,86 +2021,8 @@ SELL_AUTHORIZED  =  valuation_exit  OR  current_valid_stage5b_sell</pre>
     <div class="band-head">
       <div class="eyebrow">Theme 8 — Live prospective validation</div>
       <h2 class="bandtitle">Is the live decision system actually working?</h2>
-      <p class="lede">Historical backtests can only tell us what would have been required in the past. The decisive test of the judgment layer is prospective: freeze the evidence and the decision when it happens, then evaluate the outcome later.</p>
+      <p class="lede">Historical backtests can only tell us what would have been required in the past. The decisive test of the judgment layer is prospective: freeze the evidence and the decision when it happens, then evaluate the outcome later. <b>That evaluation is not yet available</b> — what exists today is the machinery to make it possible, and the operational monitors below.</p>
     </div>
-
-    <article class="xcard" id="h1">
-      <div class="xcard-hd">
-        <div class="xcard-id"><span class="pill">H1</span><span>Graveyard scoring</span><span class="research-only">· first run 2026-08-12 (92 verdicts) · latest 2026-08-15 (122)</span></div>
-        <h3>Are Stage-2 decisions separating later winners from later losers?</h3>
-        <p class="xcard-q">Every verdict scored net of the <span class="gterm" data-g="voo">Vanguard S&amp;P 500 ETF (VOO)</span> over the identical window. A cohort scores only by beating what you would have got anyway.</p>
-        <div class="badges">
-          <span class="badge b-neu"><span class="ic">◷</span><span class="k">Hypothesis</span> Inconclusive — too early</span>
-          <span class="badge b-acc"><span class="ic">◉</span><span class="k">Evidence</span> Prospective</span>
-          <span class="badge b-warn"><span class="ic">▲</span><span class="k">Production</span> Monitoring</span>
-        </div>
-      </div>
-      <div class="xcard-bd">
-        <div class="note warn">
-          <span class="hd">There is no result here yet, and that is the honest answer</span>
-          122 verdicts have been scored, but <b>the oldest is 20 days old</b>. No horizon clears both the sample floor and the 90-day window floor, so <b>every horizon column is empty</b>. The artifact's own summary of what it can tell you is a single word: <em>"Nothing, yet."</em>
-        </div>
-
-        <figure>
-          <div class="chartbox">
-            <div class="chart-t">Verdicts that have reached each horizon</div>
-            <div class="chart-s">Sample size is already adequate. The clock is what is missing.</div>
-            <div id="chartGrave"></div>
-            <div class="legend" id="legendGrave"></div>
-          </div>
-          <figcaption><b>Why the "to date" column is not a finding:</b> its window is 9 days. Over a few weeks an individual name's idiosyncratic move dwarfs any plausible judgment edge, so a spread computed there measures noise no matter how many names are in it. <b>The first genuinely readable column will be 90-day, reachable from 2026-10-24.</b></figcaption>
-        </figure>
-
-        <div class="tblwrap">
-          <table>
-            <caption class="chart-s" style="text-align:left;padding:9px 12px 0">Cohorts as of 2026-08-15 — median excess return vs VOO</caption>
-            <thead><tr><th>Cohort</th><th class="num">30d</th><th class="num">90d</th><th class="num">180d</th><th class="num">365d</th><th class="num">to date</th></tr></thead>
-            <tbody>
-              <tr><td>Accepted (temporary)</td><td class="num na">n=0</td><td class="num na">n=0</td><td class="num na">n=0</td><td class="num na">n=0</td><td class="num">+0.00% <span style="opacity:.6">(n=72)</span></td></tr>
-              <tr><td>Rejected (uncertain + permanent)</td><td class="num na">n=0</td><td class="num na">n=0</td><td class="num na">n=0</td><td class="num na">n=0</td><td class="num">+0.22% <span style="opacity:.6">(n=50)</span></td></tr>
-              <tr><td style="padding-left:26px">· uncertain</td><td class="num na">n=0</td><td class="num na">n=0</td><td class="num na">n=0</td><td class="num na">n=0</td><td class="num">+0.49% <span style="opacity:.6">(n=37)</span></td></tr>
-              <tr><td style="padding-left:26px">· permanent</td><td class="num na">n=0</td><td class="num na">n=0</td><td class="num na">n=0</td><td class="num na">n=0</td><td class="num">+0.00% <span style="opacity:.6">(n=13)</span></td></tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div class="whymatters">
-          <b>Why this monitor is the project's centre of gravity</b>
-          The campaign established that in calm regimes the mechanical funnel is roughly at market parity, so nearly all the claimed value has to come from Stage-2 judgment. That makes this the one measurement that can confirm or refute the system's central premise — and it is the one measurement that cannot be hurried.
-        </div>
-
-        <div class="note stop">
-          <span class="hd">Guardrail</span>
-          Nothing on this page claims the live language model has demonstrated sufficient skill. That claim requires prospective evidence which <b>does not exist yet</b>.
-        </div>
-
-        <div class="limits">
-          <b>Limitations</b>
-          <ul>
-            <li>Only the BOOM regime has any verdicts at all so far (12 accepted / 18 rejected), so there is no regime spread to read.</li>
-            <li>The "to date" spread of −0.22% over a 9-day window is explicitly labelled "not a finding" by the artifact itself.</li>
-          </ul>
-        </div>
-      </div>
-      <details class="rd research-only">
-        <summary>Research details</summary>
-        <div class="rd-bd">
-          <dl class="kv">
-            <dt>Benchmark</dt><dd>VOO, identical window subtracted per verdict</dd>
-            <dt>Verdicts loaded</dt><dd>122 (from 92 at first run on 2026-08-12)</dd>
-            <dt>Floors</dt><dd>n ≥ 20 and a ≥ 90-day window; the window floor is the binding one</dd>
-            <dt>Oldest verdict</dt><dd>20 days</dd>
-            <dt>First readable column</dt><dd>90d, reachable from <b>2026-10-24</b></dd>
-            <dt>Price fetch failures</dt><dd>none</dd>
-          </dl>
-          <div class="artifacts">
-            <a href="graveyard-2026-08-15.md"><span class="lbl">Read latest graveyard report</span><span class="fn">graveyard-2026-08-15.md</span></a>
-            <a href="graveyard-2026-08-15.json"><span class="lbl">Download raw results</span><span class="fn">graveyard-2026-08-15.json</span></a>
-            <a href="graveyard-2026-08-12.md"><span class="lbl">Previous run (92 verdicts)</span><span class="fn">graveyard-2026-08-12.md</span></a>
-          </div>
-        </div>
-      </details>
-    </article>
 
     <article class="xcard" id="g5">
       <div class="xcard-hd">
@@ -2226,7 +2130,7 @@ SELL_AUTHORIZED  =  valuation_exit  OR  current_valid_stage5b_sell</pre>
 
     <div class="statusgrid">
       <div class="stat"><span class="v" style="color:var(--ok)">21 / 21</span><span class="l">production invariants passing</span><span class="src">production-port-audit.md</span></div>
-      <div class="stat"><span class="v" data-live="testcount">265</span><span class="l">software tests currently collected</span><span class="src">unittest discovery, read at publish time</span></div>
+      <div class="stat"><span class="v" data-live="testcount">281</span><span class="l">software tests currently collected</span><span class="src">unittest discovery, read at publish time</span></div>
       <div class="stat"><span class="v">200</span><span class="l">tests at the frozen port baseline</span><span class="src">production-port-audit.md</span></div>
       <div class="stat"><span class="v" style="color:var(--ok)">green</span><span class="l">CI — ~18s, no network, no private submodule</span><span class="src">invariants.yml</span></div>
     </div>
@@ -2302,7 +2206,7 @@ SELL_AUTHORIZED  =  valuation_exit  OR  current_valid_stage5b_sell</pre>
     <article class="xcard" id="suite">
       <div class="xcard-hd">
         <div class="xcard-id"><span class="pill">Section I</span><span>Software test suite</span><span class="research-only">· pytest, CI-enforced</span></div>
-        <h3>What the <span data-live="testcount">265</span> tests guard</h3>
+        <h3>What the <span data-live="testcount">281</span> tests guard</h3>
         <p class="xcard-q">These guard invariants rather than answer research questions.</p>
         <div class="badges"><span class="badge b-acc"><span class="ic">⚙</span><span class="k">Evidence</span> Implementation audit</span></div>
       </div>
@@ -2315,7 +2219,7 @@ SELL_AUTHORIZED  =  valuation_exit  OR  current_valid_stage5b_sell</pre>
           <table>
             <thead><tr><th>Test file</th><th class="num">Tests</th><th>What it guards</th></tr></thead>
             <tbody data-live="testtable">
-<tr><td class="mono">test_stage5_authorization.py</td><td class="num">47</td><td>Who may authorize a sale, and what a failed diagnosis does</td></tr>
+<tr><td class="mono">test_stage5_authorization.py</td><td class="num">63</td><td>Who may authorize a sale, and what a failed diagnosis does</td></tr>
 <tr><td class="mono">test_sleeves.py</td><td class="num">22</td><td>Sleeve accounting; A never sells B; no leverage</td></tr>
 <tr><td class="mono">test_mechb.py</td><td class="num">21</td><td>Mechanism B shadow account</td></tr>
 <tr><td class="mono">test_valuation_exit.py</td><td class="num">18</td><td>The frozen valuation-exit rule, and its three no-anchor fallbacks</td></tr>
@@ -3112,70 +3016,6 @@ function drawNulls(){
   if (sw) { sw.style.border = '1px dashed ' + tok('rule-2'); sw.style.background = 'transparent'; }
 }
 
-/* ============================================================
-   12. CHART: H1 graveyard maturity
-   ============================================================ */
-function drawGrave(){
-  var mount = document.getElementById('chartGrave');
-  if (!mount) return;
-  var hs = [
-    {k: '30 days', n: 0}, {k: '90 days', n: 0}, {k: '180 days', n: 0}, {k: '365 days', n: 0}
-  ];
-  var W = 660, H = 232, L = 56, R = 20, T = 40, B = 54;
-  var pw = W - L - R, ph = H - T - B;
-  var hi = 130;
-  function y(v){ return T + (hi - v) / hi * ph; }
-  var s = svgRoot(W, H);
-  mount.innerHTML = '';
-
-  [0, 50, 100].forEach(function(g){
-    s.appendChild(el('line', {x1: L, x2: W - R, y1: y(g), y2: y(g), class: g === 0 ? 'zeroln' : 'gridln'}));
-    var t = el('text', {x: L - 8, y: y(g) + 3.5, class: 'axlab', 'text-anchor': 'end'});
-    t.textContent = g;
-    s.appendChild(t);
-  });
-
-  /* reference line: total verdicts scored */
-  s.appendChild(el('line', {x1: L, x2: W - R, y1: y(122), y2: y(122),
-    stroke: C(1), 'stroke-width': 1.5, 'stroke-dasharray': '5 4'}));
-  var rl = el('text', {x: W - R, y: y(122) - 7, class: 'vallab', 'text-anchor': 'end'});
-  rl.textContent = '122 verdicts scored';
-  rl.setAttribute('fill', C(1));
-  s.appendChild(rl);
-
-  var gw = pw / hs.length, bw = 62;
-  hs.forEach(function(h, i){
-    var x = L + i * gw + (gw - bw) / 2;
-    /* empty slot outline — zero is the datum, so show the absence explicitly */
-    s.appendChild(el('rect', {x: x, y: y(122), width: bw, height: y(0) - y(122), rx: 4,
-      fill: 'none', stroke: tok('rule-2'), 'stroke-width': 1, 'stroke-dasharray': '3 3'}));
-    var zt = el('text', {x: x + bw / 2, y: y(0) - 8, class: 'vallab', 'text-anchor': 'middle'});
-    zt.textContent = '0';
-    zt.setAttribute('fill', C(2));
-    s.appendChild(zt);
-    var g = el('g');
-    g.appendChild(el('rect', {x: x, y: T, width: bw, height: ph, fill: 'transparent'}));
-    hookTip(g, '<b>' + h.k + ' horizon</b><br>Verdicts that have reached it: <b>0</b><br>The oldest verdict is 20 days old.');
-    s.appendChild(g);
-    var t = el('text', {x: x + bw / 2, y: H - B + 20, class: 'marklab', 'text-anchor': 'middle'});
-    t.textContent = h.k;
-    t.setAttribute('fill', tok('ink-2'));
-    s.appendChild(t);
-  });
-  var cap = el('text', {x: L + pw / 2, y: H - 8, class: 'axlab', 'text-anchor': 'middle'});
-  cap.textContent = 'Dashed outlines are horizons no verdict has reached yet';
-  s.appendChild(cap);
-  var hd = el('text', {x: L, y: 16, class: 'axttl'});
-  hd.textContent = 'Sample size is sufficient. Elapsed time is not.';
-  hd.setAttribute('fill', tok('ink-2'));
-  s.appendChild(hd);
-  mount.appendChild(s);
-
-  legendInto('legendGrave', [
-    {label: 'Verdicts scored to date', color: C(1)},
-    {label: 'Verdicts reaching the horizon (zero at every one)', color: C(2)}
-  ]);
-}
 
 /* ============================================================
    13. GLOSSARY
@@ -3262,7 +3102,7 @@ var TIMELINE = [
   ['2026-08-12', 'Reserve and regime ideas are tested against declared nulls', 'Regime keying: 0 of 24. Crisis exemption: 0 of 6. Both are scored on disjoint sub-periods as well as nested ones.'],
   ['2026-08-14', 'Capital architecture corrected and the implementation frozen', 'SPY funds Mechanism A; Mechanism B is separately protected. 21 invariants get executable assertions and the baseline is tagged.'],
   ['2026-08-15', 'The sell side is corrected, and made autonomous', 'A correspondence audit finds the live precedence chain was never the tested rule. Rare valuation exits begin executing automatically; thesis breaks route to judgment instead of to nobody.'],
-  ['2026-08-15', 'Now: waiting for the first readable prospective column', '122 verdicts are scored and none has matured. The first meaningful horizon arrives 2026-10-24.']
+  ['2026-08-15', 'Now: the judgment layer is load-bearing and unproven', 'Every mechanical repair has been tried and controlled away. What remains can only be settled by running the system forward and measuring untouched decisions.']
 ];
 (function(){
   var box = document.getElementById('timelineList');
@@ -3344,7 +3184,7 @@ var EXPERIMENTS = [
 ["G5","Prospective-logging smoke test","Live prospective validation","2026-08-14","Supported","Implementation audit","Adopted","Synthetic PAPER1","—","prospective-logging-smoke.json","#g5","reconstruct decision from record alone observability"],
 ["G6","Production port audit","Implementation integrity","2026-08-14","Supported","Implementation audit","Adopted","—","—","production-port-audit.md","#g6","21 invariants 200 tests CI green baseline manifest tag"],
 ["G7","Port plan (Phase 0)","Implementation integrity","2026-08-14","—","Provenance only","Adopted","—","—","port-plan-2026-08-14.md","#g6","inventory research to implementation surface"],
-["H1","Graveyard scoring","Live prospective validation","2026-08-15","Inconclusive","Prospective","Monitoring","122 live verdicts","rolling","graveyard-2026-08-15.md","#h1","VOO benchmark accepted rejected temporary permanent uncertain cohort"],
+["H1","Graveyard scoring","Live prospective validation","2026-08-15","Inconclusive","Prospective","Monitoring","122 live verdicts","rolling","graveyard-2026-08-15.md","#t8","VOO benchmark accepted rejected temporary permanent uncertain cohort"],
 ["H2","Stage-5 position review","Live prospective validation","2026-08-11","—","Prospective","Monitoring","Live positions","rolling","review-2026-08-15.md","#h2","sell line DCF ceiling flags only"],
 ["H3","Screen report","Live prospective validation","2026-08-10","—","Prospective","Monitoring","Curated watchlist","weekly","screen-2026-08-10-partial.md","#h2","drawdown 20% sector benchmark 10% own-history percentile zone"],
 ["H4","Daily dashboard","Live prospective validation","2026-08-15","—","Prospective","Monitoring","Curated watchlist","daily","dashboard-latest.json","#h2","board rebuild 16 snapshots"],
@@ -3451,7 +3291,7 @@ var EXPERIMENTS = [
    ============================================================ */
 function renderAll(){
   drawCohort(); drawIdio(); drawFbar(); drawHoldout(); drawSurface();
-  drawLadder(); drawLot(); drawSell(); drawNulls(); drawGrave();
+  drawLadder(); drawLot(); drawSell(); drawNulls();
 }
 renderAll();
 if (window.matchMedia) {
