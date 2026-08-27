@@ -1,20 +1,59 @@
 # Daily operations
 
 **Living document** — unlike `production-port-audit.md`, which is frozen at the
-port baseline, this changes as the operating loop does. Last audited 2026-08-15.
+port baseline, this changes as the operating loop does. Last audited 2026-08-27.
 
 ## The routines
 
+Listed in dependency order, which is not clock order — see "Four schedules, no
+pipeline" below for why that is fine.
+
 | routine | where | schedule | trades? | last verified |
 |---|---|---|---|---|
-| **Stage-2 + Stage-5B diagnosis** | cloud routine `trig_016ELzzftkdu6m136QT5BQ37` | daily 07:00 UTC | no | verified live 2026-08-15 20:41 UTC (`enabled`, next fire 2026-08-16 07:05 UTC); never fired yet |
-| **Paper routines** — *also executes Stage-5 exits* | `paper-routines.yml` | Mondays 21:30 UTC | **YES** | first scheduled fire 2026-08-17 |
-| **Publish board** | `publish-board.yml` | daily 22:30 UTC + push | no | 8/8 scheduled runs green |
+| **Refresh HY OAS seed** | `refresh-hy-oas.yml` | daily 12:20 UTC | no | first run 2026-08-27 18:40 UTC, green in 15s (6402 → 7189 rows) |
+| **Stage-2 + Stage-5B diagnosis** | cloud routine `trig_016ELzzftkdu6m136QT5BQ37` | daily 07:00 UTC | no | fired 2026-08-27 07:29–07:39 UTC: 8 verdicts + 4 hand targets, pushed to `main` |
+| **Paper routines** — *also executes Stage-5 exits* | `paper-routines.yml` | Mondays 21:30 UTC | **YES** | 2/2 scheduled fires green (08-17, 08-24) |
+| **Publish board** | `publish-board.yml` | daily 22:30 UTC + push | no | green; ~1m30s on push |
 | **Invariants** | `invariants.yml` | every push | no | green, ~18s |
-| **Publish STAGING** | `publish-staging.yml` | push to `stage5-review` | no | dormant since 2026-08-06 |
 
-`paper-routines.yml` landed 2026-08-12 (a Wednesday), so **no Monday has passed
-yet** — "never ran on schedule" is expected, not a fault.
+There is no `publish-staging.yml`. Earlier revisions of this table listed one as
+"dormant since 2026-08-06"; `git log --all` shows no commit has ever touched that
+path in this repo, so the row was wrong rather than stale. Removed 2026-08-27.
+
+## Four schedules, no pipeline
+
+Four routines on four schedules across two platforms reads as sprawl, and the
+reflex is to consolidate. Two of the constraints are hard, and one was bought
+with a near-miss:
+
+- **Stage 2 cannot run in CI at all.** It runs on the Claude plan; the metered
+  API path is the only way to do it in GitHub Actions and `.claude/commands/judgment.md`
+  explicitly forbids it. The platform split is a constraint, not drift.
+- **Research and trading must stay apart.** See "One writer on the ledger" —
+  that edge was removed on 2026-08-15 rather than managed, and merging the jobs
+  recreates it.
+- **The cadences are tied to constants**, not preference: the ladder is weekly
+  because `LOT_SPACING_DAYS = 7`; the refresh is daily against
+  `OAS_STALE_DAYS = 14`; verdicts carry 7-day and 90-day cadences.
+
+What makes the sprawl safe is that **this is not a pipeline**. The ordering is
+implied by clock arithmetic, but nothing depends on it, because every job
+degrades on its own toward inaction:
+
+| if it stops | what happens |
+|---|---|
+| refresh-hy-oas | ~13 days of slack, then the credit leg drops and the regime line says `VIX-only stress` out loud |
+| Stage 2 | no fresh verdicts; they age past `max_age_days` and the ladder buys nothing |
+| paper-routines | no fills that week; the ladder is weekly anyway, so nothing is lost |
+| publish-board | yesterday's board stays up |
+
+So four schedules do not compound into four ways to break. Where ordering
+genuinely matters it is *enforced* rather than timed: `trading_preflight`
+refuses to trade on a branch behind upstream.
+
+One reason not to fold the refresh into the publish job specifically:
+`publish-board.yml` runs with `contents: read`, and the refresh needs
+`contents: write`.
 
 ## The two halves of Stage 5, on two schedules
 
@@ -34,7 +73,8 @@ from fresh rows rather than reading anything `review` wrote, so a stale report
 can never cause a trade.
 
 **Routine prompt drift, found and fixed 2026-08-15.** The cloud routine's inline
-notes were keyed to step *numbers* in `.claude/commands/stage2.md`, and inserting
+notes were keyed to step *numbers* in `.claude/commands/judgment.md` (then named
+`stage2.md`), and inserting
 Stage 5B as step 6 desynced all of them: its "step 7: SKIP IT" landed on
 "rebuild the board" and its "step 8: commit and push" landed on the trading step.
 It also never mentioned Stage 5B at all, and its `git add` omitted
@@ -147,7 +187,7 @@ rejection; running two Opus passes a day over one job is what exhausted it.
 old routines had to bootstrap mid-run.
 
 **Uncapped.** The 10-verdict and 3-hand-target per-run caps are gone from
-`.claude/commands/stage2.md`. The queue already decides which names need fresh
+`.claude/commands/judgment.md`. The queue already decides which names need fresh
 research; a cap on top of it only manufactured stale unresolved work (75 names
 were queued on 2026-08-15 against a cap of 10). Evidence standards are unchanged
 — each name is researched and recorded individually, and a long queue is worked
@@ -178,3 +218,65 @@ both old routines were on 08-14), verdicts age past `max_age_days`, and **the
 Monday ladder buys nothing.** That fails toward inaction, which is safe, but it
 is silent — the tell is the same one in "Trading now depends on research having
 run": board rows reading `NO NEW EXPOSURE: Stage-2 evidence needs refresh`.
+
+## The credit leg, fixed 2026-08-27
+
+**It had never run in production.** `fred_api_key` was read only from
+`config.local.toml`, which is gitignored — so the developer laptop had it and
+nothing else did. The cloud routine and every CI job fell back to the seed at
+`data/regime/hy_oas.csv`, which was *also* laptop-only, so they had no credit
+data at all and classified on VIX-only stress. Nothing surfaced it because VIX
+and OAS agree in a calm market, and the market has been calm. The leg exists to
+move *before* VIX in a credit event, so it was missing precisely where it would
+have had to fire.
+
+**A second, separate problem: an 892-day hole.** FRED serves only a trailing
+three years of `BAMLH0A0HYM2` — its own series note says the change took effect
+April 2026. The seed ended 2021-03-19, FRED now starts 2023-08-28, and the span
+between is unreachable from that source for anyone. Nobody lapsed; until April
+the full history was available on demand, which is why a short seed had been
+harmless. `reports/regime-history.csv` carries 122 VIX-ONLY weekly rows as a
+result (2021-04-12 … 2023-08-07).
+
+**What was done:**
+
+- `config.py` reads `$FRED_API_KEY` when the file is absent (file still wins).
+- The seed is now tracked (`!data/regime/` in `.gitignore`, with the ICE
+  internal-use note — this repo is private and must stay so while it carries
+  that file).
+- `refresh-hy-oas.yml` appends the FRED tail daily. **Append-only**: it aborts
+  rather than repairing if the seed is missing, shrinks, or moves backwards.
+  A missing seed means a bad checkout, not a seed to recreate — the failure it
+  guards against is committing a three-year file over 25 years of history.
+- `paper-routines.yml` and `publish-board.yml` carry the key as a *backstop*, so
+  a broken refresh cannot silently degrade them.
+- The 122-week gap is **carried with a flag, never excluded**, in all three
+  consumers. Excluding would not remove the gap — each joins the CSV as a step
+  function, so dropping the rows silently carries the 2021-03 label across 2.4
+  years. The error is one-directional (`stress = max(vix, oas)`, so a missing
+  credit leg can only *under*-state) and points the safe way in each consumer.
+
+**What to watch.** The routine prints its regime line every run. If it ever
+reads `VIX-only stress` again, the refresh job has stopped and there are roughly
+13 days of slack before anything else notices. That string is the tell; before
+2026-08-27 the same condition printed `Market regime: unavailable`, which sent
+the reader looking at the API key rather than at the credit leg.
+
+## The queue can no longer be emptied by one name (2026-08-27)
+
+`build_stage2_queue` used to let a prompt-building failure propagate: three
+hand-target names (EG, CPT, STZ) raised inside `build_user_prompt`, and the
+**whole** queue came back empty from 2026-08-19 to 2026-08-27. The routine
+reported the problem accurately every day and could do nothing about it; the
+other ~500 names simply stopped being researched, silently.
+
+Failures are now isolated per ticker and emitted as queue items carrying an
+`error` key and an empty `prompt`, printed to stderr under "could not have a
+prompt built". `.claude/commands/judgment.md` tells the routine these are pipeline
+defects rather than research work, and that **reporting them by ticker is the
+work** for those names.
+
+**Note the shape of this failure**, because it is the same one as the credit
+leg and worth recognising early: a component reported success while producing
+nothing, and the only symptom was an absence.
+
