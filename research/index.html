@@ -526,7 +526,7 @@ footer .prose{display:flex; flex-direction:column; gap:9px}
         <span class="src">production-port-audit.md</span>
       </div>
       <div class="stat">
-        <span class="v" data-live="testcount">372</span>
+        <span class="v" data-live="testcount">375</span>
         <span class="l">software tests currently collected <span class="research-only">(200 at the frozen port baseline)</span></span>
         <span class="src">unittest discovery, read at publish time</span>
       </div>
@@ -539,7 +539,7 @@ footer .prose{display:flex; flex-direction:column; gap:9px}
 
     <div class="note" style="margin-top:18px">
       <span class="hd">Reading these honestly</span>
-      The test count moved from <b>200</b> at the frozen port baseline to <span data-live="testcount">372</span> today because the suite kept growing after the baseline was tagged — most recently when the Stage-5 autonomy change replaced <code>test_trim.py</code> and added <code>test_stage5_authorization.py</code>. The audit number is frozen by design; the live number is read at publish time and is not. <b>None of these three is evidence that the strategy works</b> — they are evidence that the code does what the research decided.
+      The test count moved from <b>200</b> at the frozen port baseline to <span data-live="testcount">375</span> today because the suite kept growing after the baseline was tagged — most recently when the Stage-5 autonomy change replaced <code>test_trim.py</code> and added <code>test_stage5_authorization.py</code>. The audit number is frozen by design; the live number is read at publish time and is not. <b>None of these three is evidence that the strategy works</b> — they are evidence that the code does what the research decided.
     </div>
   </div>
 </section>
@@ -2130,7 +2130,7 @@ SELL_AUTHORIZED  =  valuation_exit  OR  current_valid_stage5b_sell</pre>
 
     <div class="statusgrid">
       <div class="stat"><span class="v" style="color:var(--ok)">21 / 21</span><span class="l">production invariants passing</span><span class="src">production-port-audit.md</span></div>
-      <div class="stat"><span class="v" data-live="testcount">372</span><span class="l">software tests currently collected</span><span class="src">unittest discovery, read at publish time</span></div>
+      <div class="stat"><span class="v" data-live="testcount">375</span><span class="l">software tests currently collected</span><span class="src">unittest discovery, read at publish time</span></div>
       <div class="stat"><span class="v">200</span><span class="l">tests at the frozen port baseline</span><span class="src">production-port-audit.md</span></div>
       <div class="stat"><span class="v" style="color:var(--ok)">green</span><span class="l">CI — ~18s, no network, no private submodule</span><span class="src">invariants.yml</span></div>
     </div>
@@ -2206,7 +2206,7 @@ SELL_AUTHORIZED  =  valuation_exit  OR  current_valid_stage5b_sell</pre>
     <article class="xcard" id="suite">
       <div class="xcard-hd">
         <div class="xcard-id"><span class="pill">Section I</span><span>Software test suite</span><span class="research-only">· pytest, CI-enforced</span></div>
-        <h3>What the <span data-live="testcount">372</span> tests guard</h3>
+        <h3>What the <span data-live="testcount">375</span> tests guard</h3>
         <p class="xcard-q">These guard invariants rather than answer research questions.</p>
         <div class="badges"><span class="badge b-acc"><span class="ic">⚙</span><span class="k">Evidence</span> Implementation audit</span></div>
       </div>
@@ -2239,10 +2239,10 @@ SELL_AUTHORIZED  =  valuation_exit  OR  current_valid_stage5b_sell</pre>
 <tr><td class="mono">test_contemporaneous_gates.py</td><td class="num">9</td><td>No look-ahead in gate evaluation</td></tr>
 <tr><td class="mono">test_runtime_independence.py</td><td class="num">8</td><td>No runtime coupling</td></tr>
 <tr><td class="mono">test_split_basis.py</td><td class="num">8</td><td><span class="na">Not recorded</span></td></tr>
+<tr><td class="mono">test_regime_degradation.py</td><td class="num">7</td><td><span class="na">Not recorded</span></td></tr>
 <tr><td class="mono">test_reserve_migration.py</td><td class="num">7</td><td>Reserve migration accounting</td></tr>
 <tr><td class="mono">test_valuation_history.py</td><td class="num">7</td><td>Own-history percentile bands</td></tr>
 <tr><td class="mono">test_stage2_prompt_lanes.py</td><td class="num">6</td><td><span class="na">Not recorded</span></td></tr>
-<tr><td class="mono">test_regime_degradation.py</td><td class="num">4</td><td><span class="na">Not recorded</span></td></tr>
 </tbody>
           </table>
           <p class="limits" style="margin-top:10px"><b>Note</b> — <code>test_trim.py</code> became <code>test_valuation_exit.py</code> on 2026-08-15. It used to pin the rule as inert; what needs pinning now is the opposite pair — that the rule executes, and that the rule executing is the one the harness actually simulated.</p>
