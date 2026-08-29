@@ -177,6 +177,12 @@
   .sw-tag{font-family:var(--mono);font-size:10.5px;font-weight:700;text-transform:uppercase;
     letter-spacing:.04em;background:var(--watch-bg);color:var(--watch);border-radius:4px;padding:2px 7px;}
   .sw-note{font-size:11.5px;color:var(--faint);font-style:italic;}
+  .read-note.gap{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line-strong);}
+  .rx-never{color:var(--ink);font-weight:600;}
+  .rx-earned{border-left-color:var(--buy);} .rx-earned .s2-tag{color:var(--buy);}
+  .rx-unearned{border-left-color:var(--avoid);} .rx-unearned .s2-tag{color:var(--avoid);}
+  .rx-uncertain{border-left-color:var(--watch);} .rx-uncertain .s2-tag{color:var(--watch);}
+  .rx-amps{color:var(--muted);font-style:italic;}
   .glossary{margin-top:30px;border:1px solid var(--line);border-radius:10px;background:var(--card);overflow:hidden;}
   .glossary>summary{cursor:pointer;list-style:none;padding:14px 20px;font-family:var(--serif);font-size:17px;font-weight:600;color:var(--ink);display:flex;align-items:center;gap:8px;}
   .glossary>summary::-webkit-details-marker{display:none;}
@@ -217,7 +223,7 @@
       valuation decade: the price at which it reaches the cheapest 5% of that history,
       and the price at which it reaches the richest 3%. One rule a side, no hand-set discounts.</p>
     </div>
-    <div class="stamp">As of <b>2026-08-28 23:11 EDT · regime BOOM</b><br>buy <b>5%</b> ·
+    <div class="stamp">As of <b>2026-08-28 23:59 EDT · regime BOOM</b><br>buy <b>5%</b> ·
       sell <b>97%</b> %ile<br>507 scanned · 506 valued</div>
   </header>
 
@@ -325,6 +331,14 @@
     the position and its lots, a 56-day cooldown per name and reason, and — on the thesis lane
     only — a current Stage-5B verdict on that specific holding. The sell line is frozen at the
     97% percentile and has deliberately no what-if slider.</p>
+    <p class="read-note gap"><b>Stage 2R — is the richness earned?</b> The mirror of the buy
+    side's "is this cheapness temporary?". <b>0 of 83</b> names at or above
+    their sell line carry a verdict; the rest are awaiting one, and the count is shown rather
+    than assumed. A verdict is <b>informational</b>: <span class="rx-never">it cannot trigger,
+    veto or delay the frozen exit</span>, and no code that places an order reads it. It answers
+    which of several dear names is the better source of capital — <i>unearned</i> means the
+    multiple expanded without the business doing so, not that anything should be sold. The
+    deterministic reasoning under each row stays primary.</p>
     <div class="scaler">
       <label for="nslider-s">Universe: the <b id="snval">507</b> largest of 507
         companies by market cap</label>
@@ -476,6 +490,12 @@
   const esc = t => String(t ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
   const linkify = t => esc(t).replace(/https?:\/\/[^\s)\]",;]+/g,
     u => `<a href="${u}" target="_blank" rel="noopener">${u.replace(/^https?:\/\/(www\.)?/, "").slice(0, 60)}</a>`);
+  const RX_LABELS = [
+    "Business re-rated, not just the multiple?",
+    "Growth visible in the numbers, not just guidance?",
+    "Earnings mid-cycle rather than peak?",
+    "Moat wider, not merely intact?",
+    "Would an owner BUY the whole business at this price?"];
   const FQ_LABELS = [
     "Customers still buying at stable prices/share?",
     "Damage bounded — a number on the worst case?",
@@ -627,6 +647,39 @@
       Stage 5B for judgment — a warning never sells mechanically</span></div>` : "";
     return `<ul class="swhy">${why}</ul>${warn}`;
   }
+  // Stage-2R. Mirrors s2HTML so the two judgments read as siblings; the extra
+  // line every block carries is the one the buy side does not need — that this
+  // verdict cannot move the mechanical rule it sits beside.
+  function rxFullHTML(x){
+    const fq = x.fq || {};
+    const qs = RX_LABELS.map((label, i) => fq["q" + (i + 1)]
+      ? `<dt>Q${i + 1} — ${label}</dt><dd>${esc(fq["q" + (i + 1)])}</dd>` : "").join("");
+    const risks = (x.risks || []).map(v => `<li>${esc(v)}</li>`).join("");
+    const amps = (x.amps || []).length
+      ? `<p class="rx-amps">Amplifiers cited: ${esc(x.amps.join("; "))}</p>` : "";
+    return `<details class="s2-full"><summary>Full verdict — the case, in the decider's own words</summary>
+      ${x.moat ? `<p class="s2-moat">Moat: <b>${esc(x.moat)}</b></p>` : ""}
+      ${x.cause ? `<p>${esc(x.cause)}</p>` : ""}
+      ${amps}
+      ${qs ? `<dl class="s2-fq">${qs}</dl>` : ""}
+      ${risks ? `<p class="s2-risks-h">Key risks</p><ul class="s2-risks">${risks}</ul>` : ""}
+      ${x.narr ? `<p class="s2-narr">${linkify(x.narr)}</p>` : ""}
+      <p class="s2-note">Informational. This verdict did not and could not change the
+      mechanical reading above it — the frozen exit fires on earned, unearned and
+      undiagnosed names identically.</p>
+    </details>`;
+  }
+  function rxHTML(r){
+    if(!r.rx) return "";
+    const x = r.rx, cls = x.cls;
+    if(!["earned","unearned","uncertain"].includes(cls)) return "";
+    const meta = ["conf " + x.conf, x.rec, x.asof ? "as of " + x.asof : ""].filter(Boolean).join(" · ");
+    const hasFull = x.narr || (x.fq && Object.keys(x.fq).length) || (x.risks || []).length;
+    return `<div class="s2 rx rx-${cls}">
+        <div class="s2-head"><span class="s2-tag">Stage 2R: ${cls.toUpperCase()}</span>
+          <span class="s2-meta">${meta}</span></div>
+        <div class="s2-sum">${esc(x.sum)}</div>${hasFull ? rxFullHTML(x) : ""}</div>`;
+  }
   function sellRowHTML(r){
     const s = r.sl;
     return `<div class="row" data-sell="${s.st}">
@@ -635,7 +688,7 @@
       <div class="c-name"><div class="tkr">${r.t}</div><div class="co">${r.co}</div><div class="sec">${r.sec}</div></div>
       <div class="c-gauge">${sellGaugeHTML(r)}</div>
       <div class="c-nums nums">${sellNumsHTML(r)}</div>
-      <div class="c-why">${sellWhyHTML(r)}</div></div>`;
+      <div class="c-why">${sellWhyHTML(r)}${rxHTML(r)}</div></div>`;
   }
   function applySell(){
     // Same universe scope as the buy tab, and the same ordering idea: the names
