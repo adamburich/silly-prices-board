@@ -132,10 +132,18 @@ without the new cash.
 
 **Recovering a missed contribution:** once the cause is fixed,
 `gh workflow run paper-routines.yml -f force_contribution=true`. It is a full
-run (exits and the ladder as well), on whatever day it is dispatched. Check the
-ledger first, because nothing stops a second deposit in one month: a forced run
-always contributes, and so does any live dispatch on days 1–7 unless it sets
-`skip_contribution=true`.
+run (exits and the ladder as well), on whatever day it is dispatched.
+
+**At most one contribution per month**, since 2026-09-23. `contribute` refuses,
+and says so, when AUTO already has a deposit in the current New York month, and
+that single decision covers MECH and the controls, so every leg keeps identical
+cashflows. So a forced run, or a second live dispatch in days 1–7, can no longer
+deposit twice. The key is any AUTO deposit, because the engine's deposit event
+carries no note and its replay rejects unknown event types; since this job is
+AUTO's only writer, the only non-contribution deposit is the 2026-08-12 seed,
+which counts for August. A recovery must still land in the month it recovers:
+dispatched after the month turns, it is simply that month's contribution, and
+the first-week run then skips.
 
 **Know its blind spot.** A clean checkout at tip is exactly what the preflight
 reads as safe, so it could not have caught a *cloud* routine writing fills to an
