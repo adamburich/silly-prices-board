@@ -1,7 +1,8 @@
 # Daily operations
 
 **Living document** — unlike `production-port-audit.md`, which is frozen at the
-port baseline, this changes as the operating loop does. Last audited 2026-08-27.
+port baseline, this changes as the operating loop does. Last audited 2026-08-27;
+the Monday job's sections revised 2026-09-23.
 
 ## The routines
 
@@ -12,7 +13,7 @@ pipeline" below for why that is fine.
 |---|---|---|---|---|
 | **Refresh HY OAS seed** | `refresh-hy-oas.yml` | daily 12:20 UTC | no | first run 2026-08-27 18:40 UTC, green in 15s (6402 → 7189 rows) |
 | **Stage-2 + Stage-5B diagnosis** | cloud routine `trig_016ELzzftkdu6m136QT5BQ37` | daily 07:00 UTC | no | fired 2026-08-27 07:29–07:39 UTC: 8 verdicts + 4 hand targets, pushed to `main` |
-| **Paper routines** — *also executes Stage-5 exits* | `paper-routines.yml` | Mondays 21:30 UTC | **YES** | 2/2 scheduled fires green (08-17, 08-24) |
+| **Paper routines** — *also executes Stage-5 exits* | `paper-routines.yml` | Mondays 21:30 UTC | **YES** | 6 scheduled fires 08-17 … 09-21: 5 green, **09-07 red** (refused on its own contribution; see "One writer on the ledger") |
 | **Publish board** | `publish-board.yml` | daily 22:30 UTC + push | no | green; ~1m30s on push |
 | **Invariants** | `invariants.yml` | every push | no | green, ~18s |
 
@@ -44,12 +45,13 @@ degrades on its own toward inaction:
 |---|---|
 | refresh-hy-oas | ~13 days of slack, then the credit leg drops and the regime line says `VIX-only stress` out loud |
 | Stage 2 | no fresh verdicts; they age past `max_age_days` and the ladder buys nothing |
-| paper-routines | no fills that week; the ladder is weekly anyway, so nothing is lost |
+| paper-routines | no fills that week; the ladder is weekly anyway, so nothing is lost — **except on a first-week Monday, which also carries the monthly contribution.** Days 8+ skip it, so no later Monday makes it up: it stays missing until someone re-runs with `force_contribution=true` (2026-09-07) |
 | publish-board | yesterday's board stays up |
 
 So four schedules do not compound into four ways to break. Where ordering
 genuinely matters it is *enforced* rather than timed: `trading_preflight`
-refuses to trade on a branch behind upstream.
+refuses to trade on a branch behind upstream, and inside the Monday job nothing
+writes `portfolio/` ahead of that check — a test holds the workflow to it.
 
 One reason not to fold the refresh into the publish job specifically:
 `publish-board.yml` runs with `contents: read`, and the refresh needs
@@ -102,13 +104,58 @@ The preflight added the same day still stands as defence in depth:
 changes or the branch is behind upstream. A refusal exits 1 and trades nothing,
 so the Monday job goes **red** instead of quietly trading on a stale ledger. Dry
 runs are exempt. It degrades to "proceed" when git cannot answer (detached HEAD,
-no upstream), which is safe because CI checks out the tip into a clean tree.
+no upstream), which is safe because CI checks out the tip into a clean tree —
+clean when the job *starts*, which is why nothing in the job may write before it.
+
+**The preflight must run before the job's first write — found 2026-09-07.** Git
+cannot say who wrote an uncommitted change, so the preflight reads every one as
+a previous run's. The monthly contribution used to be its own workflow step,
+ahead of the ladder. On the first Monday of September (Actions run
+[34163523048](https://github.com/adamburich/Silly-Prices-Holdings/actions/runs/34163523048))
+it deposited, the preflight found that deposit uncommitted and refused to trade,
+and every later step was skipped, the commit included. September's contribution
+was discarded with the runner, and the ladder did not run that week. It would
+have repeated every first-week Monday, and the documented recovery
+(`force_contribution`) ran the same two steps in the same order, so it would
+have been refused too. No monthly contribution had ever landed: the ledger's
+only AUTO deposit was still the 2026-08-12 seed.
+
+The contribution now runs inside `paper-routine --contribute`, after the
+preflight and still before splits, dividends, exits and the ladder. The
+workflow's "Monthly contribution" step only decides (first week, or
+`force_contribution`, unless `skip_contribution`) and passes the amount on.
+`tests/test_trading_preflight.py` holds both halves to that order:
+`run_paper_routine` checks before it deposits, and no step ahead of the Entry
+ladder in `paper-routines.yml` may run the pipeline or touch `portfolio/`. A
+refused run deposits nothing. So does a dry run, whose preview therefore runs
+without the new cash.
+
+**Recovering a missed contribution:** once the cause is fixed,
+`gh workflow run paper-routines.yml -f force_contribution=true`. It is a full
+run (exits and the ladder as well), on whatever day it is dispatched. Check the
+ledger first, because nothing stops a second deposit in one month: a forced run
+always contributes, and so does any live dispatch on days 1–7 unless it sets
+`skip_contribution=true`.
 
 **Know its blind spot.** A clean checkout at tip is exactly what the preflight
 reads as safe, so it could not have caught a *cloud* routine writing fills to an
 unmerged branch. That hazard is closed by the routine's own hard rule — it never
 runs `paper-routine` and never writes under `portfolio/` — not by the preflight.
 If a future routine is ever given trading duties, the preflight will not stop it.
+
+## Monday market holidays
+
+The cron has no exchange calendar, so the Monday job also runs when the market is
+shut: Labor Day, MLK Day, Presidents' Day, Memorial Day, and any fixed-date
+holiday that lands on a Monday. The feed has no bar for that day, and
+`broker.fill_price` takes the newest daily close it has, so **every paper fill
+prices at the prior session's close.** That covers ladder lots, exits, reserve
+moves and the contribution's control buys. Checked on Labor Day 2026-09-07: the
+run log's control buys priced VOO at $708.01, QQQ at $718.96 and BRK-B at
+$506.03, which are Friday 09-04's closes exactly. That is still a settled
+price, so the "after the close" reason for the schedule holds. But the ledger
+stamps those fills Monday while the price is Friday's, so read a holiday-dated
+fill that way, not as a pricing error.
 
 ## Trading now depends on research having run
 
