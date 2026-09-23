@@ -407,3 +407,43 @@ Full detail, including the cash sleeve built and rejected:
    within-window behaviour and failed to predict across entry dates.
 3. **The reserve is spent.** No re-tuning, no re-running. The forward live
    record is now the only uncontaminated test remaining.
+
+# APPENDED 2026-09-23: reproducing this document's commands
+
+Three things a reader running the command block above needs to know. None changes
+the result recorded here; all three change what re-running it produces.
+
+1. **The growth index moved on.** The block above parks in
+   `megacap-index-rev.json`, the revenue-growth proxy of 2026-08-11. The next day's
+   reserve study (`reports/reserve-composition-2026-08-12.md`) and every artifact
+   tagged `-mega66.6667-qqq` used `megacap-index-qqq.json` — the real QQQ path
+   spliced onto SPY. And since 2026-08-14 (`config.toml [reserve.weights]`) the
+   live reserve is **SPY only**; the 2/3-growth reserve is historical architecture.
+2. **No committed code built `megacap-index-qqq.json`.** It came from an
+   unrecorded one-off on 2026-08-11. `scripts/build_megacap_index.py --growth
+   qqq-real` now rebuilds it from the store, matching exactly through 1999-03-08
+   and ending at 21.54 against the original 21.86 (weekly level ratio up to 21%
+   apart), so the rebuild writes `megacap-index-qqq-rebuilt.json` and never
+   overwrites the file the committed artifacts used.
+3. **Code after 2026-08-14 does not reproduce the 2026-08-12 artifacts, so the
+   reproduce gate was re-baselined.** `scripts/research_reserve.py --verify`
+   failed on every profile (2000-2019 A: $1,405,118 vs $1,463,213; starved 2409
+   vs 1542; the EW benchmark matched to the dollar, so the data are unchanged).
+   Bisected between two hand-verified ends: `c140d62` reproduces, `dee146a`
+   (2026-08-14, "Net dilution: unflag an issuance that bought something") does
+   not. That change to `metrics.trap_flags` is a live correctness fix; the
+   harness imports it, so it also moved the backtest's gates — the dilution flag
+   now fires less, more names qualify, and more signals go unfunded. (A first
+   bisect blamed `5185fc5`; its step script treated a crash as a regression, and
+   hand checks refuted it.)
+
+   **Decision 2026-09-23 (Adam): re-baseline on current code.**
+   `scripts/rebaseline_reserve.py` re-ran all 25 gate artifacts (A in 12 windows,
+   B in 12, C in 2000-2019) with the commands that wrote them — checked first to
+   reproduce the 2026-08-12 file to the dollar at `b361834` — and wrote them
+   dated 2026-09-23 beside the originals, which are unchanged. The gate now
+   points at those (`BASELINE_STAMP`). Funnel finals move −5.9% (B, 2000-2020)
+   to +7.0% (A, 2010-2026) by window; every EW leg is identical. **The reserve-composition grids and
+   verdicts in `reports/research/reserve/` were computed on the pre-`dee146a`
+   gates and were not re-run**; the live reserve they informed has been SPY-only
+   since 2026-08-14 (item 1), so they stand as historical architecture.

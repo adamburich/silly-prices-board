@@ -151,3 +151,32 @@ python scripts/backtest_universe.py ... --drop-frac 0.30 --drop-seed 1
 
 Baselines: 1998-2019 $1,657,079 / 1933 fills; 2000-2019 $1,339,515 / 1690;
 2010-2019 $389,112 / 528.
+
+# APPENDED 2026-09-23: the veto survived in the judgment layer
+
+`a37cb67` removed the sector-wide veto from the screen (`screen.py`) and the
+board (`dashboard.py`), where it had made any sector-wide BUY a FLAGGED row. It
+did not touch the instructions the judgment layer follows. The Stage-2 system
+prompt (`sillyprices/diagnose.py`), the `/judgment` framework
+(`.claude/commands/judgment.md`), `METHODOLOGY.md` (Stage 1 and Stage 2) and the
+thesis template all still listed "the discount is sector-wide rather than
+company-specific" as an **automatic disqualifier ⇒ reject**, and every packet for
+such a name carries the note that fires it. So from 2026-08-11 to 2026-09-23 a
+rule measured worse than random removal could still reject names — now through a
+verdict instead of a rating.
+
+That is specified behaviour (this report, `a37cb67`) diverging from actual
+behaviour: a demonstrated defect under the production-port change control, not
+a new research question. Fixed on branch `quant-fixes-2026-09-23` by removing it
+from all five disqualifier lists and restating it as a question for Stage 2's
+question 4 (secular decline of the sector, or a repricing the company will
+outlast). The informational note itself is unchanged.
+
+Consequence to watch: `diagnose.py`'s prompt text changed, so Stage-2 verdicts
+recorded after this lands carry a new `prompt_sha`. The graveyard's provenance
+table segments episodes by that stamp, so any before/after difference is visible
+rather than blended.
+
+Baselines note: the Reproduce figures above ($1,657,079 / 1933; $1,339,515 /
+1690) predate the split-adjustment fix (`080396d`); post-fix they are $1,648,017
+(1998-2019) and $1,345,039 / 1640 (2000-2019).

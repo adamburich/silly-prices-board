@@ -63,3 +63,14 @@ That b5/s95 is optimal. Nothing can, with this data. The strongest available
 claim is that the neighbourhood is viable — which the holdout already
 supports independently: all 8 monthly-TRIM configurations (b5-b20 × s95/s99)
 finished positive out of sample, while every hold-class config sank.
+
+# APPENDED 2026-09-23: the ordering is asserted, not provable
+
+This preregistration and its "before any result" s97 amendment were added in the
+same commit as the grid they govern (`c3cfdf4`, with 47 result files). Nothing in
+git history can show the plan preceded the results; only this document's word
+does. That is not evidence the order was wrong — it is evidence that it cannot be
+checked. The decision it produced (`reports/sell-threshold-decision-2026-08-11.md`)
+was later re-measured in the adopted funding regime and stands on that
+re-measurement. From 2026-09-23 a preregistration is committed on its own first;
+`py -3 scripts/check_prereg.py` reports this file as FAIL for exactly this reason.
