@@ -180,6 +180,44 @@ opportunities" unless someone checks.
 `NO NEW EXPOSURE: Stage-2 evidence needs refresh`. A handful is normal churn; a
 growing set means the research routine is not keeping up.
 
+## Competing models (2026-09-23)
+
+The Monday job no longer runs one strategy. It runs **Alpha** (`config.toml`, on
+the original `AUTO` / `MECH` / `CTRL-*` accounts) and then every launched
+challenger (`models/<name>/model.toml`, on `NAME/AUTO`, `NAME/MECH` and
+`NAME/CTRL-*`). Each model gets its own board, exits and ladders. The full design
+is in [docs/MODELS.md](../docs/MODELS.md). What changes operationally:
+
+- **The job is still the only writer of `portfolio/`.** Launches and retirements
+  happen inside `paper-routine`, after the preflight. It appends to
+  `portfolio/models.jsonl`, which the commit step stages alongside the ledger.
+  Nobody launches a model by hand. You set `ready = true` and commit, and the
+  next Monday launches it with $10,000 per account.
+- **Contributions fan out.** `--contribute` deposits the same amount into every
+  launched model's lanes and controls, broken ones included. Deposits are not
+  decisions, and skipping them would leave a restored model short.
+- **A new red.** When a challenger fails, `paper-routine` exits **3**. The step
+  records that failure, the commit still pushes Alpha's and the healthy models'
+  fills, and the final "Competing-model failures" step turns the run red. A
+  red run with a clean commit therefore means a challenger missed a week, not
+  that Alpha did.
+- **Research load grows with the models.** `stage2-queue` is the union of every
+  live or pending model's near-buy names, tagged
+  `[near-buy for a competing model]`. A model with a much looser buy line can
+  add a lot of names to the queue. `model-check` prints how many names a model
+  would add before it launches. Size that against the plan budget the same way
+  the Alpha queue is sized.
+- **One verdict per name, whoever reads it.** Stage-2 validity is always decided
+  on Alpha's row, the one `stage2-record` stamps from. So a challenger's
+  different buy line cannot invalidate a verdict for that challenger alone and
+  loop the name through the queue.
+
+**What to watch:** `py -3 -m sillyprices models` for the standings. In the
+Monday log, watch for any `!! BRAVO: …` line and for `settings moved since
+launch`. That line means a `config.toml` change moved every model that does not
+override the setting. It's correct for a defect fix, but anyone reading the race
+across that date needs to know.
+
 ## Rehearsal of 2026-08-17 (run 2026-08-15)
 
 | step | outcome |
