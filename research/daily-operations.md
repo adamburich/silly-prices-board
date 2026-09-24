@@ -165,6 +165,16 @@ price, so the "after the close" reason for the schedule holds. But the ledger
 stamps those fills Monday while the price is Friday's, so read a holiday-dated
 fill that way, not as a pricing error.
 
+Since 2026-09-23 the job reads an NYSE calendar (`sillyprices/market_calendar.py`,
+2026–2028, re-verified each January) and **says so**. The run's first line is
+`!! NON-SESSION DAY: … prices at the <Friday> close`. Every fill's note ends
+`[non-session DATE (HOLIDAY): priced at the PREV close]`, and ladder and control
+buys carry `context.non_session`. Which fills happen is unchanged: the harness
+prices a holiday Monday at the prior close too. Whether to skip those days is a
+rule question, not settled here (`reports/non-session-fills-question-2026-09-23.md`).
+A holiday-dated fill WITHOUT the stamp means the table is missing that date, for
+example an unscheduled closure.
+
 ## Trading now depends on research having run
 
 New as of 2026-08-14 (§13.11). Stale Stage-2 evidence no longer authorizes new
