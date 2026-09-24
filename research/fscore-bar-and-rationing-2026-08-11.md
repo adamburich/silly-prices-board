@@ -209,3 +209,21 @@ python scripts/backtest_universe.py --sp500 --trim-only --buy-pctl 0.05 \
 
 Baselines: 1998-2019 $1,657,079 / 1933 fills; 2000-2019 $1,339,515 / 1690;
 2010-2019 $389,112 / 528.
+
+---
+
+# APPENDED 2026-09-23: the baselines above predate the split fix
+
+The Reproduce baselines above ($1,657,079 / 1933 fills for 1998-2019, $1,339,515 /
+1690 for 2000-2019, $389,112 / 528 for 2010-2019) were computed before `080396d`
+stopped the harness double-applying split factors to Sharadar's already-adjusted
+share counts. The committed baseline artifacts
+(`backtest-universe-sp500-trimonly-b5s97-dca20k-park-mo-lf1-cap12-<window>-2026-08-11.md`)
+read **$1,648,017 / 1867 (1998-2019), $1,345,039 / 1640 (2000-2019) and $401,244 /
+527 (2010-2019)**. Check a re-run against those, not the figures above.
+
+That commit's own reading still applies: comparisons between arms stand to the
+extent both sides carried the same defect. Code after `dee146a` (2026-08-14) also
+moved the harness's gates, so today's code is not expected to match even the
+corrected figures to the dollar (`reports/frozen-config-2026-08-11.md`, APPENDED
+2026-09-23, item 3). Nothing was re-run for this note.

@@ -220,10 +220,10 @@
     <div>
       <div class="mark">Silly Prices <span class="thin">— the board</span></div>
       <p class="mast-sub">The S&amp;P 500 (plus retained internationals) against each name's own
-      valuation decade: the price at which it reaches the cheapest 5% of that history,
+      valuation history: the price at which it reaches the cheapest 5% of that history,
       and the price at which it reaches the richest 3%. One rule a side, no hand-set discounts.</p>
     </div>
-    <div class="stamp">As of <b>2026-09-23 20:46 EDT · regime BOOM</b><br>buy <b>5%</b> ·
+    <div class="stamp">As of <b>2026-09-23 22:35 EDT · regime BOOM</b><br>buy <b>5%</b> ·
       sell <b>97%</b> %ile<br>507 scanned · 506 valued</div>
   </header>
 
@@ -271,7 +271,7 @@
 
   <section class="spread">
     <div class="sp-head"><h2>The spread</h2>
-      <span class="sp-sub">each name vs its own decade — reallocation read, no positions assumed</span></div>
+      <span class="sp-sub">each name vs its own history — reallocation read, no positions assumed</span></div>
     <div class="sp-cols">
       <div class="sp-col"><h3>Cheapest vs own history <span class="sp-dir">destinations</span></h3>
         <div class="sp-row"><span class="chip-rate r-CLOSE">CLOSE</span><b>O</b><span class="sp-pct">0th %ile</span><span class="sp-mark s2m-temporary">Stage 2: temporary</span></div><div class="sp-row"><span class="chip-rate r-CLOSE">CLOSE</span><b>FDS</b><span class="sp-pct">0th %ile</span><span class="sp-mark s2m-temporary">Stage 2: temporary</span></div><div class="sp-row"><span class="chip-rate r-BUY">BUY</span><b>TYL</b><span class="sp-pct">0th %ile</span><span class="sp-mark s2m-temporary">Stage 2: temporary</span></div><div class="sp-row"><span class="chip-rate r-BUY">BUY</span><b>LDOS</b><span class="sp-pct">0th %ile</span><span class="sp-mark s2m-temporary">Stage 2: temporary</span></div></div>
@@ -283,13 +283,13 @@
     cheap one is temporary, and only above the sell line + optimistic-DCF ceiling counts as
     "egregious" on the rich side. The left column shows only buyable ratings — rejected (AVOID)
     and vetoed (FLAGGED) names stay in the ledger, however cheap they look. Percentile = share of
-    its own decade spent at or below today's multiple.</p>
+    its own fiscal years on file at or below today's multiple.</p>
   </section>
 
   <div class="howto">
     <p><b>How the buy price is set.</b> <span class="term">Buy target = the price at the 5%
     percentile of a name's own EV/EBIT history</span> — the level it has traded at or below only about
-    5% of the last decade — priced on today's earnings, so the target rises as the business grows.
+    5% of its fiscal years on file — priced on today's earnings, so the target rises as the business grows.
     No hand-set discount: the single knob is that percentile. Financials use the same rule on <b>P/B</b>;
     erratic-EBIT growth/cyclical names use it on <b>normalized</b> (own median-margin) earnings. A strict
     owner-earnings DCF is shown as a deeper "floor" for scaling in — but only when it actually sits below
@@ -351,15 +351,15 @@
   <div class="howto">
     <p><b>How the sell price is set.</b> <span class="term">Sell line = the price at the
     97% percentile of a name's own valuation history</span> — richer than it has
-    traded for all but about 3% of its own decade. Reaching it is only the
+    traded for all but about 3% of its own history. Reaching it is only the
     first leg. The exit needs a second, independent one: price must <i>also</i> clear an
     owner-earnings DCF ceiling built on assumptions chosen to flatter the company, so a name is
     sold only when it is dear on its own history <i>and</i> dear against a generous estimate of
     what it can earn. Three fallbacks cover the names with no DCF anchor. Thin history, ADRs,
     financials and erratic EBIT run on the history leg alone. A company earning nothing must
     instead clear a <b>record price and a record market cap</b> — a multiple divided by near-zero
-    earnings prints "richest ever" on a business at the start of a recovery, which is how ~127
-    spurious sells appeared in the 1998–2026 simulation. Names with no EV/EBIT at all use an EV/S
+    earnings prints "richest ever" on a business at the start of a recovery, and without the
+    ratchets the simulation sold names there (energy in 2017, GFC survivors in 2010). Names with no EV/EBIT at all use an EV/S
     line that already has both ratchets baked in. <b>ONE LEG</b> = above the sell line with the
     corroborating leg missing: reported, never sold on. Thesis breaks and value-trap
     disqualifiers do <i>not</i> sell mechanically — every tested policy containing mechanical
@@ -403,7 +403,7 @@
 
       <dt>IPO <span class="gl-t">Initial Public Offering</span></dt>
       <dd>When a private company first sells shares to the public and starts trading. Recent IPOs lack the
-      decade of history this method needs.</dd>
+      years of history this method needs.</dd>
 
       <dt>Normalized (median-margin) earnings</dt>
       <dd>Profit smoothed to the company's typical (median) profit margin, so one freak good or bad year
@@ -425,7 +425,7 @@
       <b>97th percentile</b>
       of its own valuation history — richer than it has traded for all but about
       3% of its own
-      decade. Clearing it is one leg of the sell rule, never the whole of it.</dd>
+      history. Clearing it is one leg of the sell rule, never the whole of it.</dd>
 
       <dt>Owner-earnings DCF ceiling</dt>
       <dd>What the business is worth if you discount the cash an owner could actually take out of
@@ -453,9 +453,9 @@
   <footer>
     <p class="disc">Prices via Yahoo Finance; fundamentals from SEC EDGAR — current multiples use
     trailing-twelve-month figures and the latest quarterly balance sheet where 10-Q data exists
-    (annual for foreign 20-F filers); band history is annual. Own-history multiples are partly inflated
-    by the 2020–21 valuation peak, so the 5th percentile
-    is "cheapest 5% of the recent past," not of deep history. Buy targets are demanding by design — silly
+    (annual for foreign 20-F filers); band history is annual: one reading per fiscal year on file, every
+    year visible (about 18–19 for most names), so the 5th percentile
+    sits close to a name's second-cheapest year. Buy targets are demanding by design — silly
     prices are rare. Paper-money methodology validation, not investment advice.</p>
   </footer>
 </main>

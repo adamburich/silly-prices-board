@@ -170,3 +170,21 @@ delisted names frozen at last trade; S&P 500 PIT universe only (by
 decision); ~400 configs evaluated against the same history — every number
 in this file is in-sample for the campaign as a whole except the single
 holdout test, which is why the holdout outranks everything else here.
+
+---
+
+# APPENDED 2026-09-23: two readings this synthesis never amended
+
+- **Finding 2, "Trap exits are human-judgment territory, permanently":** superseded
+  on 2026-08-15 (`reports/stage5-autonomy-decision-2026-08-15.md`). Trap exits are
+  now Stage 5B, an LLM exit diagnosis with no human review layer, and an uncertain
+  or failed diagnosis retains the position. The evidence in Finding 2 is unchanged
+  and still binding: no mechanical trap sells. Only who judges has changed.
+- **Finding 4, "Concentration is where the portfolio-level edge lives":** contradicted
+  the next day by `reports/lot-size-exposure-finding-2026-08-11.md`. Once idle cash
+  was parked in the benchmark, the lot-size spread collapsed from 27.5 points to 6.1,
+  so roughly 78% of the gradient was idle cash, not concentration. Lot size is an
+  exposure dial whose sign is regime-dependent: corr(average invested %, edge) is
+  +0.90 in 2000-2019 and -0.73 in 2010-2019. The scale-invariance arithmetic (lot
+  proportional to funding) and the fixed-lot capacity ceiling in the same finding
+  are untouched.

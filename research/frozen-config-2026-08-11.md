@@ -447,3 +447,21 @@ the result recorded here; all three change what re-running it produces.
    verdicts in `reports/research/reserve/` were computed on the pre-`dee146a`
    gates and were not re-run**; the live reserve they informed has been SPY-only
    since 2026-08-14 (item 1), so they stand as historical architecture.
+
+---
+
+# APPENDED 2026-09-23: the stated reason for not scoring against SPY
+
+The criterion stands as preregistered; nothing here reopens it. But the rationale
+given under "Explicitly NOT the criterion: SPY" rests on two claims that do not hold:
+
+- **"The funnel structurally cannot own that factor"** was refuted in `7c59a44`
+  (2026-08-12, local branch `growth-via-selection`). The "0 of N" count was an empty
+  `members` dict. Against a real basket, 9-12% of fills are top-50 fast-growing
+  mega-caps (180 of 1,944 in 1998-2019; 51 of 429 in 2020-2026).
+- **"Selection contributes +8.8%, positive in 8 of 8 sub-periods"** has no source
+  artifact on any branch. It exists only in prose. Don't cite it.
+
+Reporting SPY without scoring on it still follows from the design itself, which asks
+whether the funnel beats its equal-weight universe. Only the supporting reasons
+above are withdrawn.

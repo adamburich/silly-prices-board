@@ -187,3 +187,16 @@ Two timing values in this change were wrong and are fixed in
   ladder and reserve are untouched. This changes who decides and whether the
   decision executes, nothing about what the rules say.
 - **Paper only.** `[paper]` is the only account family this executes in.
+
+---
+
+# APPENDED 2026-09-23: "~127 such sells" was already retracted
+
+Fallback 2 above is justified with "~127 such sells in the 1998-2026 sim". `076bf54`
+(2026-08-11, four days before this memo) retracted that figure as a coincidence
+count: any trim landing in a sign-flip quarter, legitimate ones like DVN 2021
+included. The artifact population is the anchorless subset, which the harness
+reports directly as `blocked_trims`: 202 week-evaluations in the 2010 window, 864 in
+2000 and 876 in 1998, about 95% of them on a just-flipped-positive EBIT. The fallback
+itself is unaffected. `076bf54` justified it on mechanism and live safety, not on a
+count, with P&L essentially neutral in all three windows.

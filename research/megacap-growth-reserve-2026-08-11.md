@@ -255,3 +255,22 @@ every four months.
 Implement with **VOO** for the SPY third — same index, ~6bp/yr cheaper, and
 already `benchmark = "VOO"` in config. SPY is used in the harness only because
 it is the one ETF in the Sharadar store and VOO's inception is 2010.
+
+---
+
+# APPENDED 2026-09-23: the motivation's premises, and what is live
+
+- **The factor decomposition** cited under "The motivation itself predates the
+  reserve" (selection +8.8%, 8 of 8) has no source artifact on any branch. Don't
+  cite it.
+- **"The funnel structurally cannot own mega-cap"** was refuted in `7c59a44`
+  (2026-08-12, local branch `growth-via-selection`): 9-12% of fills are top-50
+  fast-growing mega-caps, and the "0 of N" count was an empty `members` dict. That
+  commit's own reading is that the reserve decision has an independent
+  justification in measured terminal values and does not fall with the rationale.
+  The rationale should stop being cited.
+- **What is live.** Since 2026-08-14 the reserve is SPY only (`config.toml
+  [reserve.weights]`). It is held in SPY, not VOO as recommended above: FIFO would
+  sell AUTO's historical paired-VOO lots first (`config.toml [reserve]`). The
+  2/3-growth setting is historical architecture. What stands is the class rule:
+  never cash, no regime keying (`reserve-composition-2026-08-12.md`).

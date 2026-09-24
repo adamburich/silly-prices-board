@@ -220,3 +220,30 @@ $1,657,079 / 1933 fills; 2000-2019 $1,339,515 / 1690; 2010-2019 $389,112 /
 working tree by mega runs and were restored from git; the overwriting runs are
 kept as `UNKNOWN-PROVENANCE-*` because their exact configuration can no longer
 be established.
+
+---
+
+# APPENDED 2026-09-23: two premises and the baselines, corrected
+
+1. **The decomposition has no source.** "Selection +8.8%, sd 4.7%, positive 8 of 8;
+   factor +6.1%, sd 9.2%" is produced by no committed file, script output or commit
+   on any branch. It appears only in prose: here, in `frozen-config-2026-08-11.md`,
+   in `megacap-growth-reserve-2026-08-11.md`, and in the research explorer generated
+   from them. Treat it as unsourced and don't cite it. Lever A, the adopted one,
+   doesn't depend on it: it was argued on its own prior (F>=7 is out of domain for
+   the most heavily analysed companies) and then tested directly.
+2. **"The funnel structurally cannot own it" is refuted.** `7c59a44` (2026-08-12, on
+   the local branch `growth-via-selection`, not on `main`) found that the "0 of
+   4,393 fills" count was an empty `members` dict: `megacap-index-qqq.json` is a
+   price path with no basket. Measured against `megacap-index-rev.json` (top 50 by
+   cap, fastest-growing half), the funnel bought mega-cap growth in 180 of 1,944
+   fills (1998-2019), 166 of 1,714 (2000-2019), 65 of 558 (2010-2019) and 51 of 429
+   (2020-2026): 9-12% of fills, among them INTC, MSFT, ORCL, CSCO and GOOGL. Of 9,791
+   week-instances of a top-50 mega-cap in a qualifying drawdown, 2,928 (29.9%) sat
+   at or below the 5% buy line. The funnel under-owns the factor; it does not fail
+   to own it. That commit changes no verdict in this record, but the rationale
+   should stop being cited.
+3. **The baselines predate the split fix.** The comparison baselines above
+   ($1,657,079 / 1933; $1,339,515 / 1690; $389,112 / 528) were computed before
+   `080396d`. The committed artifacts read $1,648,017 / 1867 (1998-2019),
+   $1,345,039 / 1640 (2000-2019) and $401,244 / 527 (2010-2019).
