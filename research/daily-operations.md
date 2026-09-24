@@ -15,7 +15,7 @@ pipeline" below for why that is fine.
 | **Stage-2 + Stage-5B diagnosis** | cloud routine `trig_016ELzzftkdu6m136QT5BQ37` | daily 07:00 UTC | no | fired 2026-08-27 07:29–07:39 UTC: 8 verdicts + 4 hand targets, pushed to `main` |
 | **Paper routines** — *also executes Stage-5 exits* | `paper-routines.yml` | Mondays 21:30 UTC | **YES** | 6 scheduled fires 08-17 … 09-21: 5 green, **09-07 red** (refused on its own contribution; see "One writer on the ledger") |
 | **Publish board** | `publish-board.yml` | daily 22:30 UTC + push | no | green; ~1m30s on push |
-| **Invariants** | `invariants.yml` | every push | no | green, ~18s |
+| **Invariants** | `invariants.yml` | daily 11:17 UTC + every push that is not only `/judgment` output | no | green on 3.11, 3.12 and 3.13 (2026-09-24) |
 
 There is no `publish-staging.yml`. Earlier revisions of this table listed one as
 "dormant since 2026-08-06"; `git log --all` shows no commit has ever touched that
