@@ -17,6 +17,14 @@ pipeline" below for why that is fine.
 | **Publish board** | `publish-board.yml` | daily 22:30 UTC + push | no | green; ~1m30s on push |
 | **Invariants** | `invariants.yml` | daily 11:17 UTC + every push that is not only `/judgment` output | no | green on 3.11, 3.12 and 3.13 (2026-09-24) |
 
+Since 2026-09-24 the `dashboard` step in both jobs builds one board per live or
+pending competing model beside Alpha's (docs/MODELS.md, "Each model also has a
+board"), and the publish job wraps them all: Alpha at `/`, each challenger at
+`/<name>.html`, a version switch in the masthead. A challenger costs each run
+its own board build (Bravo: a second pass over the watchlist plus one long
+price history per name, cached 12h); its failure is its own page saying "not
+built", never a failed step, so Alpha's board and the ledger commit are safe.
+
 There is no `publish-staging.yml`. Earlier revisions of this table listed one as
 "dormant since 2026-08-06"; `git log --all` shows no commit has ever touched that
 path in this repo, so the row was wrong rather than stale. Removed 2026-08-27.
